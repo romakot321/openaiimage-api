@@ -1,4 +1,5 @@
 from io import BytesIO
+from PIL import Image
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 from uuid import UUID
 
@@ -17,7 +18,9 @@ async def create_task(
     service: TaskService = Depends(),
 ):
     task = await service.create(schema)
-    background_tasks.add_task(service.send, task.id, schema, BytesIO(await file.read()))
+    image = BytesIO()
+    Image.open(BytesIO(await file.read())).save(image, format="PNG", transparency=1)
+    background_tasks.add_task(service.send, task.id, schema, image)
     return task
 
 
