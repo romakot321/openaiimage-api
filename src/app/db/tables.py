@@ -3,7 +3,7 @@ import uuid
 from uuid import UUID
 from enum import Enum, auto
 
-from sqlalchemy import bindparam
+from sqlalchemy import LargeBinary, bindparam
 from sqlalchemy import CheckConstraint
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -31,26 +31,51 @@ engine = ServiceEngine()
 class BaseMixin:
     @declared_attr.directive
     def __tablename__(cls):
-        letters = ["_" + i.lower() if i.isupper() else i for i in cls.__name__]
-        return "".join(letters).lstrip("_") + "s"
+        letters = ['_' + i.lower() if i.isupper() else i for i in cls.__name__]
+        return ''.join(letters).lstrip('_') + 's'
 
-    id: M[UUID] = column(
-        server_default=text("gen_random_uuid()"), primary_key=True, index=True
-    )
-    created_at: M[dt.datetime] = column(server_default=sql_utcnow)
+    id: M[UUID] = column(server_default=text("gen_random_uuid()"), primary_key=True, index=True)
+    created_at: M[dt.datetime] = column(server_default=sql_utcnow, default=dt.datetime.now)
     updated_at: M[dt.datetime | None] = column(nullable=True, onupdate=sql_utcnow)
+
+
+class TaskStatus(Enum):
+    queued = 'queued'
+    finished = 'finished'
+    error = 'error'
 
 
 class TaskItem(Base):
     __tablename__ = "task_items"
 
     id: M[int] = column(primary_key=True, index=True, autoincrement=True)
-    task_id: M[UUID] = column(ForeignKey("tasks.id", ondelete="CASCADE"))
+    task_id: M[UUID] = column(ForeignKey('tasks.id', ondelete="CASCADE"))
+    result_url: M[str | None]
 
-    task: M["Task"] = relationship(back_populates="items")
+    task: M['Task'] = relationship(back_populates='items')
 
 
 class Task(BaseMixin, Base):
     error: M[str | None] = column(nullable=True)
+    user_id: M[str]
+    app_bundle: M[str]
 
-    items: M[list["TaskItem"]] = relationship(back_populates="task", lazy="selectin")
+    items: M[list['TaskItem']] = relationship(back_populates='task', lazy='selectin')
+    images: M[list['TaskImage']] = relationship(back_populates="task", lazy='selectin')
+
+
+class Prompt(BaseMixin, Base):
+    text: M[str]
+    title: M[str]
+    is_model: M[bool]
+    for_image: M[bool]
+    for_video: M[bool]
+    image: M[bytes | None] = column(type_=LargeBinary, nullable=True)
+
+
+class TaskImage(BaseMixin, Base):
+    external_id: M[str]
+    task_id: M[UUID] = column(ForeignKey("tasks.id", ondelete="CASCADE"))
+
+    task: M['Task'] = relationship(back_populates='images')
+

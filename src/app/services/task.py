@@ -1,55 +1,48 @@
+from io import BytesIO
 from uuid import UUID
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 
 from app.db.tables import TaskItem
-from app.repositories.external import ExternalRepository
+from app.repositories.openai import OpenAIRepository
+from app.repositories.prompt import PromptRepository
 from app.repositories.task import TaskRepository
 from app.schemas.external import ExternalTaskSchema
-from app.schemas.task import TaskCreateSchema, TaskSchema, TaskSearchSchema, TaskShortSchema, TaskUpdateSchema
+from app.schemas.task import TaskCreateSchema, TaskSchema, TaskShortSchema
 
 
 class TaskService:
     def __init__(
             self,
             task_repository: TaskRepository = Depends(TaskRepository.depend),
-            external_repository: ExternalRepository = Depends()
+            prompt_repository: PromptRepository = Depends(PromptRepository.depend),
+            openai_repository: OpenAIRepository = Depends()
     ):
         self.task_repository = task_repository
-        self.external_repository = external_repository
+        self.external_repository = openai_repository
+        self.prompt_repository = prompt_repository
 
-    async def create(self, schema: TaskCreateSchema) -> TaskSchema:
+    async def create(self, schema: TaskCreateSchema) -> TaskShortSchema:
+        if schema.prompt is None and schema.model_id is None:
+            raise HTTPException(422, detail="Model id and prompt cannot be None at one time")
         model = await self.task_repository.create(**schema.model_dump())
-        return TaskSchema.model_validate(model)
+        return TaskShortSchema.model_validate(model)
 
-    async def send(self, task_id: UUID, schema: TaskCreateSchema):
-        request = ExternalTaskSchema(text=schema.text)
-        external_task_id = await self.external_repository.create_task(request)
+    async def send(self, task_id: UUID, schema: TaskCreateSchema, image: BytesIO):
+        prompt = schema.prompt or ""
 
-        response = None
-        for _ in range(6):
-            external_task = await self.external_repository.get_task(external_task_id)
-            if external_task:
-                response = external_task
-                break
+        if schema.model_id is not None:
+            prompt += await self.prompt_repository.get(schema.model_id)
+        request = ExternalTaskSchema(prompt=prompt, size=schema.size, image=image)
 
-        if response is None:
-            return await self.task_repository.update(task_id, error="Timeout")
-        return await self.task_repository.create_items(TaskItem(task_id=task_id))
+        try:
+            result_url = await self.external_repository.generate_image2image(request)
+        except Exception as e:
+            return await self.task_repository.update(task_id, error=str(e))
+
+        if result_url is None:
+            return await self.task_repository.update(task_id, error="Generation error")
+        await self.task_repository.create_items(TaskItem(task_id=task_id, result_url=result_url))
 
     async def get(self, task_id: UUID) -> TaskSchema:
         model = await self.task_repository.get(task_id)
         return TaskSchema.model_validate(model)
-
-    async def update(self, task_id: UUID, schema: TaskUpdateSchema) -> TaskSchema:
-        model = await self.task_repository.update(task_id, **schema.model_dump())
-        return TaskSchema.model_validate(model)
-
-    async def delete(self, task_id: UUID) -> None:
-        await self.task_repository.delete(task_id)
-
-    async def get_list(self, schema: TaskSearchSchema) -> list[TaskShortSchema]:
-        models = await self.task_repository.list(**schema.model_dump(exclude_none=True))
-        return [
-            TaskShortSchema.model_validate(model)
-            for model in models
-        ]
