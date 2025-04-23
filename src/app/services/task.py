@@ -1,4 +1,5 @@
 from io import BytesIO
+from PIL import Image
 from loguru import logger
 from uuid import UUID
 from fastapi import Depends, HTTPException
@@ -28,11 +29,22 @@ class TaskService:
         model = await self.task_repository.create(user_id=schema.user_id, app_bundle=schema.app_bundle)
         return TaskShortSchema.model_validate(model)
 
+    def _convert_image(self, image_buffer: BytesIO) -> BytesIO:
+        converted = BytesIO()
+        image = Image.open(image_buffer)
+        image = image.convert("RGBA")
+        [image.putpixel((x, y), image.getpixel((x, y))[:3] + (0,)) for x in range(image.size[0]) for y in range(image.size[1])]
+        logger.debug(image.getpixel((0, 0)))
+        image.save(converted, format="PNG", mode="RGBA")
+        converted.seek(0)
+        return converted
+
     async def send(self, task_id: UUID, schema: TaskCreateSchema, image: BytesIO):
         prompt = schema.prompt or ""
 
         if schema.model_id is not None:
             prompt += await self.prompt_repository.get(schema.model_id)
+        image = self._convert_image(image)
         request = ExternalTaskSchema(prompt=prompt, size=schema.size, image=image)
 
         try:

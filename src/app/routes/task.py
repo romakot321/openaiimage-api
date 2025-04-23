@@ -18,9 +18,7 @@ async def create_task(
     service: TaskService = Depends(),
 ):
     task = await service.create(schema)
-    image = BytesIO()
-    Image.open(BytesIO(await file.read())).save(image, format="PNG", transparency=1)
-    background_tasks.add_task(service.send, task.id, schema, image)
+    background_tasks.add_task(service.send, task.id, schema, BytesIO(await file.read()))
     return task
 
 
