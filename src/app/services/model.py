@@ -5,7 +5,7 @@ from app.repositories.prompt import PromptRepository
 from app.schemas.models import ModelSearchSchema, ModelSchema
 
 
-class ModelsService:
+class ModelService:
     def __init__(
             self,
             prompt_repository: PromptRepository = Depends()
