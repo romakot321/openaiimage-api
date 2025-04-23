@@ -2,7 +2,7 @@ from io import BytesIO
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 from uuid import UUID
 
-from app.schemas.task import TaskCreateSchema, TaskSchema, TaskSearchSchema, TaskShortSchema, TaskUpdateSchema
+from app.schemas.task import TaskCreateSchema, TaskSchema
 from app.services.task import TaskService
 from . import validate_api_token
 

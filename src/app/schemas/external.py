@@ -1,6 +1,6 @@
 from enum import Enum
 from io import BytesIO
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ExternalImageSize(Enum):
@@ -13,3 +13,5 @@ class ExternalTaskSchema(BaseModel):
     prompt: str
     size: ExternalImageSize
     image: BytesIO
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
