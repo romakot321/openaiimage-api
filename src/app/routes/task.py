@@ -2,14 +2,14 @@ from io import BytesIO
 from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
 from uuid import UUID
 
-from app.schemas.task import TaskCreateSchema, TaskSchema
+from app.schemas.task import TaskCreateSchema, TaskSchema, TaskShortSchema
 from app.services.task import TaskService
 from . import validate_api_token
 
 router = APIRouter(prefix="/api/task", tags=["Task"])
 
 
-@router.post("", response_model=TaskSchema, dependencies=[Depends(validate_api_token)])
+@router.post("", response_model=TaskShortSchema, dependencies=[Depends(validate_api_token)])
 async def create_task(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(),

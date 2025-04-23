@@ -1,4 +1,5 @@
 from io import BytesIO
+from loguru import logger
 from uuid import UUID
 from fastapi import Depends, HTTPException
 
@@ -24,7 +25,7 @@ class TaskService:
     async def create(self, schema: TaskCreateSchema) -> TaskShortSchema:
         if schema.prompt is None and schema.model_id is None:
             raise HTTPException(422, detail="Model id and prompt cannot be None at one time")
-        model = await self.task_repository.create(**schema.model_dump())
+        model = await self.task_repository.create(user_id=schema.user_id, app_bundle=schema.app_bundle)
         return TaskShortSchema.model_validate(model)
 
     async def send(self, task_id: UUID, schema: TaskCreateSchema, image: BytesIO):
@@ -37,7 +38,9 @@ class TaskService:
         try:
             result_url = await self.external_repository.generate_image2image(request)
         except Exception as e:
+            logger.exception(e)
             return await self.task_repository.update(task_id, error=str(e))
+        logger.debug(result_url)
 
         if result_url is None:
             return await self.task_repository.update(task_id, error="Generation error")

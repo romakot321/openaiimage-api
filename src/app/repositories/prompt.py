@@ -2,11 +2,12 @@ from sqlalchemy_service import BaseService as BaseRepository
 from sqlalchemy import select
 from uuid import UUID
 
-from app.db.tables import Prompt
+from app.db.tables import Prompt, engine
 
 
 class PromptRepository[Table: Prompt, int](BaseRepository):
     base_table = Prompt
+    engine = engine
 
     async def create(self, model: Prompt) -> Prompt:
         self.session.add(model)

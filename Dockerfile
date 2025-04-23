@@ -66,6 +66,7 @@ EOF
 
 RUN <<EOF
 apt-get update --quiet
+apt-get install -y proxychains4
 rm -rf /var/lib/apt/lists/*
 EOF
 
@@ -74,6 +75,7 @@ ENV PATH=/app/bin:$PATH \
   PYTHONFAULTHANDLER=1 \
   PYTHONUNBUFFERED=1
 
+COPY --chown=$user_id:$group_id proxychains.conf /etc/proxychains.conf
 COPY docker-entrypoint.sh /
 
 COPY --link --chown=$user_id:$group_id --from=build /app/ /app

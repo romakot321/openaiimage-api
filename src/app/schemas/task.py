@@ -28,7 +28,7 @@ class TaskShortSchema(BaseModel):
 
 class TaskCreateSchema(BaseModel):
     prompt: str | None = None
-    model_id: int | None = None
+    model_id: str | None = None
     size: ExternalImageSize
     user_id: str
     app_bundle: str
@@ -37,7 +37,7 @@ class TaskCreateSchema(BaseModel):
     def as_form(
         cls,
         prompt: str | None = Form(None),
-        model_id: int | None = Form(None),
+        model_id: str | None = Form(None),
         size: ExternalImageSize = Form(),
         user_id: str = Form(),
         app_bundle: str = Form(),

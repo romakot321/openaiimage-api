@@ -1,5 +1,5 @@
 from contextlib import suppress
-from fastapi import Response
+from fastapi import Response, HTTPException
 from loguru import logger
 from sqlalchemy import exc
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +14,29 @@ class TaskRepository[Table: Task, int](BaseRepository):
     engine = engine
     session: AsyncSession
     response: Response
+
+    async def _commit(self, force: bool = False):
+        """
+        Commit changes.
+        Handle sqlalchemy.exc.IntegrityError.
+        If exception is not found error,
+        then throw HTTPException with 404 status (Not found).
+        Else log exception and throw HTTPException with 409 status (Conflict)
+        """
+        try:
+            await self.session.commit()
+        except exc.IntegrityError as e:
+            await self.session.rollback()
+            if 'is not present in table' not in str(e.orig):
+                logger.exception(e)
+                raise HTTPException(status_code=409)
+            table_name = str(e.orig).split('is not present in table')[1]
+            table_name = table_name.strip().capitalize()
+            table_name = table_name.strip('"').strip("'")
+            raise HTTPException(
+                status_code=404,
+                detail=f'{table_name} not found'
+            )
 
     async def create(self, **fields) -> Task:
         return await self._create(**fields)
