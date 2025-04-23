@@ -9,9 +9,16 @@ class ExternalImageSize(Enum):
     lg = "1024x1024"
 
 
-class ExternalTaskSchema(BaseModel):
+class ExternalImage2ImageTaskSchema(BaseModel):
     prompt: str
     size: ExternalImageSize
     image: BytesIO
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+class ExternalText2ImageTaskSchema(BaseModel):
+    prompt: str
+    size: ExternalImageSize
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

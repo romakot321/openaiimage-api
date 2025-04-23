@@ -22,12 +22,13 @@ class TaskSchema(BaseModel):
 
 class TaskShortSchema(BaseModel):
     id: UUID
+    error: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class TaskCreateSchema(BaseModel):
-    prompt: str | None = None
+    user_prompt: str | None = None
     model_id: str | None = None
     size: ExternalImageSize
     user_id: str
