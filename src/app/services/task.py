@@ -33,10 +33,11 @@ class TaskService:
     def _convert_image(self, image_buffer: BytesIO) -> BytesIO:
         converted = BytesIO()
         image = Image.open(image_buffer)
+        #image = image.convert("RGB")
         image = image.convert("RGBA")
         [image.putpixel((x, y), image.getpixel((x, y))[:3] + (0,)) for x in range(image.size[0]) for y in range(image.size[1])]
-        logger.debug(image.getpixel((0, 0)))
         image.save(converted, format="PNG", mode="RGBA")
+        #image.save(converted, format="PNG", mode="RGB")
         converted.seek(0)
         return converted
 

@@ -37,14 +37,14 @@ class TaskCreateSchema(BaseModel):
     @classmethod
     def as_form(
         cls,
-        prompt: str | None = Form(None),
+        user_prompt: str | None = Form(None),
         model_id: str | None = Form(None),
         size: ExternalImageSize = Form(),
         user_id: str = Form(),
         app_bundle: str = Form(),
     ):
         return cls(
-            prompt=prompt,
+            user_prompt=user_prompt,
             model_id=model_id,
             size=size,
             user_id=user_id,

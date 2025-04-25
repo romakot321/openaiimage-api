@@ -13,6 +13,7 @@ class OpenAIRepository:
     async def generate_image2image(self, request: ExternalImage2ImageTaskSchema) -> str | None:
         image = request.image
         image.name = "tmp.png"
+        logger.debug(request)
         response = await self.client.images.edit(
             model="dall-e-2",
             prompt=request.prompt,
@@ -25,6 +26,7 @@ class OpenAIRepository:
         return response.data[0].url if response.data else None
 
     async def generate_text2image(self, request: ExternalText2ImageTaskSchema) -> str | None:
+        logger.debug(request)
         response = await self.client.images.generate(
             model="dall-e-2",
             prompt=request.prompt,
