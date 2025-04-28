@@ -44,11 +44,15 @@ class TaskService:
         converted = BytesIO()
         image = Image.open(image_buffer)
         image = image.convert("RGBA")
+<<<<<<< HEAD
         [
             image.putpixel((x, y), image.getpixel((x, y))[:3] + (0,))
             for x in range(image.size[0])
             for y in range(image.size[1])
         ]
+=======
+        [image.putpixel((x, y), image.getpixel((x, y))[:3] + (0,)) for x in range(image.size[0]) for y in range(image.size[1])]
+>>>>>>> parent of 04128ba (Fix)
         logger.debug(image.getpixel((0, 0)))
         image.save(converted, format="PNG", mode="RGBA")
         converted.seek(0)
