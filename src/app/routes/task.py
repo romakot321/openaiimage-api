@@ -10,7 +10,7 @@ from . import validate_api_token
 router = APIRouter(prefix="/api/task", tags=["Task"])
 
 
-@router.post("/image", response_model=TaskShortSchema, dependencies=[Depends(validate_api_token)])
+@router.post("", response_model=TaskShortSchema, dependencies=[Depends(validate_api_token)])
 async def create_task_image2image(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(),
@@ -22,10 +22,10 @@ async def create_task_image2image(
     return task
 
 
-@router.post("/text", response_model=TaskShortSchema, dependencies=[Depends(validate_api_token)])
+@router.post("", response_model=TaskShortSchema, dependencies=[Depends(validate_api_token)])
 async def create_task_text2image(
     background_tasks: BackgroundTasks,
-    schema: TaskCreateSchema,
+    schema: TaskCreateSchema = Depends(TaskCreateSchema),
     service: TaskService = Depends(),
 ):
     task = await service.create(schema)
