@@ -14,7 +14,7 @@ class OpenAIRepository:
         image = request.image
         image.name = "tmp.png"
         response = await self.client.images.edit(
-            model="dall-e-2",
+            model="gpt-image-1",
             prompt=request.prompt,
             image=image,
             size=request.size.value,
@@ -26,7 +26,7 @@ class OpenAIRepository:
 
     async def generate_text2image(self, request: ExternalText2ImageTaskSchema) -> str | None:
         response = await self.client.images.generate(
-            model="dall-e-2",
+            model="gpt-image-1",
             prompt=request.prompt,
             size=request.size.value,
             n=1,
