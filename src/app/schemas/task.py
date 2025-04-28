@@ -1,5 +1,4 @@
 from uuid import UUID
-from enum import Enum
 from fastapi import Form
 from pydantic import BaseModel, ConfigDict
 
@@ -28,19 +27,10 @@ class TaskShortSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class ImageSize(Enum):
-    square_hd = "square_hd"
-    square = "square"
-    portrait_4_3 = "portrait_4_3"
-    portrait_16_9 = "portrait_16_9"
-    landscape_4_3 = "landscape_4_3"
-    landscape_16_9 = "landscape_16_9"
-
-
 class TaskCreateSchema(BaseModel):
     user_prompt: str | None = None
     model_id: str | None = None
-    size: ImageSize
+    size: ExternalImageSize
     user_id: str
     app_bundle: str
 

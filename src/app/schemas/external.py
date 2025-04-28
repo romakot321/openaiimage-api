@@ -3,14 +3,6 @@ from io import BytesIO
 from pydantic import BaseModel, ConfigDict
 
 
-class ExternalImageGeneration(BaseModel):
-    id: str
-    is_finished: bool
-    is_invalid: bool
-    image_url: str | None = None
-    comment: str | None = None
-
-
 class ExternalImageSize(Enum):
     sm = "256x256"
     md = "512x512"
