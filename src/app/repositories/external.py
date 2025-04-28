@@ -3,7 +3,7 @@ import io
 import json
 from loguru import logger
 from uuid import uuid4
-from aiohttp import ClientSession
+from asyncio import ClientSession
 from app.schemas.external import ExternalImageGeneration
 
 
