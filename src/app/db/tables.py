@@ -79,3 +79,10 @@ class TaskImage(BaseMixin, Base):
 
     task: M['Task'] = relationship(back_populates='images')
 
+
+class TaskRequest(BaseMixin, Base):
+    id: M[int] = column(primary_key=True, index=True, autoincrement=True)
+    task_id: M[UUID] = column(ForeignKey('tasks.id', ondelete="CASCADE"))
+    schema: M[str]
+    status: M[str | None]
+

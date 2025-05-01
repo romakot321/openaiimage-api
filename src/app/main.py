@@ -7,8 +7,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic_settings import BaseSettings
 from loguru import logger
 from contextlib import asynccontextmanager
+from fastapi_utils.tasks import repeat_every
 
 from app.db.admin import attach_admin_panel
+from app.services.task import TaskService
 
 
 class ProjectSettings(BaseSettings):
@@ -26,8 +28,6 @@ def register_exception(application):
             content=content, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
         )
 
-    application.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
 
 def register_cors(application):
     application.add_middleware(
@@ -39,13 +39,26 @@ def register_cors(application):
     )
 
 
+@repeat_every(seconds=15, wait_first=15)
+async def process_requests():
+    async with TaskService() as task_service:
+        await task_service.process_requests()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await process_requests()
+    yield
+
+
 def init_web_application():
     project_settings = ProjectSettings()
     application = FastAPI(
         title="Task api",
         openapi_url='/openapi.json',
         docs_url='/docs',
-        redoc_url='/redoc'
+        redoc_url='/redoc',
+        lifespan=lifespan
     )
 
     if project_settings.LOCAL_MODE:

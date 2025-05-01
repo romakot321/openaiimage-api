@@ -18,7 +18,7 @@ async def create_task_image2image(
     service: TaskService = Depends(),
 ):
     task = await service.create(schema)
-    background_tasks.add_task(service.send_img2img, task.id, schema, BytesIO(await file.read()))
+    await service.add_request(task.id, schema, BytesIO(await file.read()))
     return task
 
 
@@ -29,7 +29,7 @@ async def create_task_text2image(
     service: TaskService = Depends(),
 ):
     task = await service.create(schema)
-    background_tasks.add_task(service.send_txt2img, task.id, schema)
+    await service.add_request(task.id, schema)
     return task
 
 
