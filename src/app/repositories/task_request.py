@@ -40,7 +40,7 @@ class TaskRequestRepository[Table: TaskRequest, int](BaseRepository):
     async def create(self, **fields) -> TaskRequest:
         return await self._create(**fields)
 
-    async def list(self, not_sended: bool | None = None, page=None, count=None) -> list[Task]:
+    async def list(self, not_sended: bool | None = None, page=None, count=None) -> list[TaskRequest]:
         query = self._get_list_query(page=page, count=count)
         if not_sended:
             query = query.filter(TaskRequest.status == None)
