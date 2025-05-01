@@ -39,7 +39,7 @@ def register_cors(application):
     )
 
 
-@repeat_every(seconds=15, wait_first=15)
+@repeat_every(seconds=15, wait_first=15, raise_exceptions=True)
 async def process_requests():
     async with TaskService() as task_service:
         await task_service.process_requests()

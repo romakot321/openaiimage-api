@@ -1,5 +1,7 @@
 version: '3'
 
+name: openaiimage-api
+
 services:
   app:
     build:

@@ -1,4 +1,5 @@
 from io import BytesIO
+import asyncio
 from typing import Coroutine
 from PIL import Image
 from loguru import logger
@@ -95,6 +96,7 @@ class TaskService:
         )
 
     async def send_txt2img(self, task_id: UUID, schema: TaskCreateSchema):
+        print("txt2img")
         prompt = await self.build_prompt(schema)
         request = ExternalText2ImageTaskSchema(
             prompt=prompt, size=schema.size, quality=schema.quality
@@ -106,6 +108,7 @@ class TaskService:
     async def send_img2img(
         self, task_id: UUID, schema: TaskCreateSchema, image: BytesIO
     ):
+        print("img2img")
         prompt = await self.build_prompt(schema)
         image = self._convert_image(image)
         request = ExternalImage2ImageTaskSchema(
@@ -160,8 +163,8 @@ class TaskService:
         for request in requests:
             image = None
 
-            if self.storage_repository.exists(str(requests.task_id)):
-                image = BytesIO(self.storage_repository.get_file(str(requests.task_id)))
+            if self.storage_repository.exists(str(request.task_id)):
+                image = BytesIO(self.storage_repository.get_file(str(request.task_id)))
 
             asyncio.create_task(
                 self._process_request(
@@ -175,15 +178,16 @@ class TaskService:
     async def __aenter__(self):
         self.task_repository = await TaskRepository().__aenter__()
         self.prompt_repository = PromptRepository(
-            session - self.task_repository.session
+            session = self.task_repository.session
         )
         self.request_repository = TaskRequestRepository(
-            session - self.task_repository.session
+            session = self.task_repository.session
         )
         self.external_repository = OpenAIRepository()
+        self.storage_repository = StorageRepository()
         return self
 
-    async def __aexit__(*exinfo):
+    async def __aexit__(self, *exinfo):
         await self.task_repository.__aexit__(*exinfo)
 
     def get_result(self, task_id: UUID) -> bytes:
