@@ -19,11 +19,12 @@ class PromptRepository[Table: Prompt, int](BaseRepository):
         filters = {}
         if is_model is not None:
             filters = {"is_model": is_model}
-        return list(await self._get_list(page=page, count=count, **filters))
+        return list(await self._get_list(page=page, count=count, **filters, select_in_load=Prompt.user_inputs))
 
     async def get(self, model_id: UUID) -> Prompt:
         return await self._get_one(
             id=model_id,
+            select_in_load=Prompt.user_inputs
         )
 
     async def update(self, model_id: UUID, **fields) -> Prompt:

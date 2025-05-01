@@ -26,7 +26,7 @@ async def create_task_image2image(
 @router.post("/text", response_model=TaskShortSchema, dependencies=[Depends(validate_api_token)])
 async def create_task_text2image(
     background_tasks: BackgroundTasks,
-    schema: TaskCreateSchema = Depends(TaskCreateSchema),
+    schema: TaskCreateSchema,
     service: TaskService = Depends(),
 ):
     task = await service.create(schema)

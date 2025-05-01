@@ -27,8 +27,14 @@ class TaskShortSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TaskUserInputSchema(BaseModel):
+    key: str
+    value: str
+
+
 class TaskCreateSchema(BaseModel):
     user_prompt: str | None = Field(default=None, max_length=32000)
+    user_inputs: list[TaskUserInputSchema] | None = None
     model_id: str | None = None
     size: ExternalImageSize
     quality: ExternalImageQuality
@@ -39,6 +45,7 @@ class TaskCreateSchema(BaseModel):
     def as_form(
         cls,
         user_prompt: str | None = Form(None),
+        user_inputs: list[TaskUserInputSchema] | None = Form(None),
         model_id: str | None = Form(None),
         quality: ExternalImageQuality = Form(ExternalImageQuality.auto),
         size: ExternalImageSize = Form(),
@@ -47,6 +54,7 @@ class TaskCreateSchema(BaseModel):
     ):
         return cls(
             user_prompt=user_prompt,
+            user_inputs=user_inputs,
             model_id=model_id,
             size=size,
             quality=quality,

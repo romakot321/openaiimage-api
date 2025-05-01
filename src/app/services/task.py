@@ -65,8 +65,13 @@ class TaskService:
         if schema.model_id is not None:
             model = await self.prompt_repository.get(schema.model_id)
             prompt += model.text
-            if schema.user_prompt is not None and "{user_prompt}" in prompt:
-                prompt = prompt.format(user_prompt=schema.user_prompt)
+
+            if schema.user_inputs and prompt.user_inputs:
+                prompt_user_inputs_keys = [i.key for i in prompt.user_inputs]
+                for user_input in schema.user_inputs:
+                    if user_input.key in prompt_user_inputs_keys:
+                        prompt = prompt.format(**{user_input.key: user_input.value})
+
         elif schema.user_prompt:
             prompt = schema.user_prompt
 
@@ -84,6 +89,7 @@ class TaskService:
         if not result.startswith("http"):
             self.storage_repository.store_file(str(task_id), base64.b64decode(result))
             result = self.external_url + f"/api/task/{task_id}/result"
+
         await self.task_repository.create_items(
             TaskItem(task_id=task_id, result_url=result)
         )
@@ -122,6 +128,7 @@ class TaskService:
         image: BytesIO | None = None,
     ):
         async with cls() as self:
+            logger.info(f"Sending {task_id=}")
             await self.request_repository.update(request_id, status="sended")
 
             if image is not None:
@@ -131,6 +138,7 @@ class TaskService:
                 await self.send_txt2img(task_id, schema)
 
             await self.request_repository.delete(request_id)
+            logger.info(f"Finished {task_id=}")
 
     async def add_request(
         self, task_id: UUID, schema: TaskCreateSchema, image: BytesIO | None = None

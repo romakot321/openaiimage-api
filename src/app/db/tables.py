@@ -64,6 +64,17 @@ class Task(BaseMixin, Base):
     images: M[list['TaskImage']] = relationship(back_populates="task", lazy='selectin')
 
 
+class PromptUserInput(Base):
+    __tablename__ = "prompt_userinputs"
+
+    id: M[int] = column(primary_key=True, index=True, autoincrement=True)
+    prompt_id: M[int] = column(ForeignKey("prompts.id", ondelete="CASCADE"))
+    key: M[str]
+    description: M[str]
+
+    prompt: M['Prompt'] = relationship(back_populates="user_inputs", lazy="noload")
+
+
 class Prompt(BaseMixin, Base):
     text: M[str]
     title: M[str]
@@ -71,6 +82,8 @@ class Prompt(BaseMixin, Base):
     for_image: M[bool]
     for_video: M[bool]
     image: M[bytes | None] = column(type_=LargeBinary, nullable=True)
+
+    user_inputs: M[list['PromptUserInput']] = relationship(back_populates="prompt", lazy="selectin")
 
 
 class TaskImage(BaseMixin, Base):
