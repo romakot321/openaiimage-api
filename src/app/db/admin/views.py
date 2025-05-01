@@ -22,7 +22,7 @@ class TaskItemView(ModelView, model=TaskItem):
 
 
 class PromptView(ModelView, model=Prompt):
-    column_list = "__all__"
+    column_list = [Prompt.text, Prompt.title]
     column_searchable_list = [Prompt.id, Prompt.title]
     column_default_sort = [(Prompt.created_at, True)]
     form_overrides = dict(image=FileField)
