@@ -81,5 +81,7 @@ COPY docker-entrypoint.sh /
 COPY --link --chown=$user_id:$group_id --from=build /app/ /app
 COPY --link ./templates /app/templates
 
+RUN mkdir -p /app/storage && chown -R $user_id:$group_id /app/storage
+
 USER $user_id:$group_id
 WORKDIR /app

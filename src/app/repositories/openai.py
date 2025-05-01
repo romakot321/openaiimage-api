@@ -21,8 +21,8 @@ class OpenAIRepository:
             n=1,
         )
 
-        logger.debug(f"Get image response: {response}")
-        return response.data[0].url if response.data else None
+        logger.debug(f"Get image response for: {request=} {response.usage}")
+        return response.data[0].b64_json if response.data else None
 
     async def generate_text2image(self, request: ExternalText2ImageTaskSchema) -> str | None:
         response = await self.client.images.generate(
@@ -32,6 +32,6 @@ class OpenAIRepository:
             n=1,
         )
 
-        logger.debug(f"Get image response: {response}")
-        return response.data[0].url if response.data else None
+        logger.debug(f"Get image response for: {request=} {response.usage}")
+        return response.data[0].b64_json if response.data else None
 

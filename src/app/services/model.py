@@ -2,13 +2,13 @@ from uuid import UUID
 from fastapi import Depends
 
 from app.repositories.prompt import PromptRepository
-from app.schemas.models import ModelSearchSchema, ModelSchema
+from app.schemas.model import ModelSearchSchema, ModelSchema
 
 
 class ModelService:
     def __init__(
             self,
-            prompt_repository: PromptRepository = Depends()
+            prompt_repository: PromptRepository = Depends(PromptRepository.depend)
     ):
         self.prompt_repository = prompt_repository
 

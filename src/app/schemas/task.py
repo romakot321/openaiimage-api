@@ -1,9 +1,9 @@
 from uuid import UUID
 from fastapi import Form
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas import BaseSearchSchema
-from app.schemas.external import ExternalImageSize
+from app.schemas.external import ExternalImageSize, ExternalImageQuality
 
 
 class TaskSchema(BaseModel):
@@ -28,25 +28,28 @@ class TaskShortSchema(BaseModel):
 
 
 class TaskCreateSchema(BaseModel):
-    user_prompt: str | None = None
+    user_prompt: str | None = Field(default=None, max_length=32000)
     model_id: str | None = None
     size: ExternalImageSize
+    quality: ExternalImageQuality
     user_id: str
     app_bundle: str
 
     @classmethod
     def as_form(
         cls,
-        prompt: str | None = Form(None),
+        user_prompt: str | None = Form(None),
         model_id: str | None = Form(None),
+        quality: ExternalImageQuality = Form(ExternalImageQuality.auto),
         size: ExternalImageSize = Form(),
         user_id: str = Form(),
         app_bundle: str = Form(),
     ):
         return cls(
-            prompt=prompt,
+            user_prompt=user_prompt,
             model_id=model_id,
             size=size,
+            quality=quality,
             user_id=user_id,
             app_bundle=app_bundle,
         )

@@ -10,6 +10,8 @@ services:
     env_file:
       - .env
     restart: always
+    volumes:
+      - images:/app/storage
     networks:
       global_network:
       default:
@@ -26,3 +28,6 @@ services:
 networks:
   global_network:
     external: true
+
+volumes:
+  images:
