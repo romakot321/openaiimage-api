@@ -1,5 +1,5 @@
 from fastapi import UploadFile
-from app.db.tables import Task, Prompt, TaskItem, TaskImage
+from app.db.tables import Task, Prompt, TaskItem, TaskImage, PromptUserInput
 from sqladmin import ModelView
 from wtforms import FileField
 
@@ -33,3 +33,7 @@ class PromptView(ModelView, model=Prompt):
             data['image'] = None
         return data
 
+
+class PromptUserInputView(ModelView, model=PromptUserInput):
+    column_list = "__all__"
+    column_searchable_list = [PromptUserInput.id]
