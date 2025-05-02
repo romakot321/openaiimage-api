@@ -1,4 +1,5 @@
 from io import BytesIO
+from aiohttp import ClientSession
 import asyncio
 from typing import Coroutine
 from PIL import Image
@@ -126,7 +127,7 @@ class TaskService:
         task = await self.get(task_id)
         async with ClientSession() as session:
             resp = await session.post(webhook_url, json=task.model_dump())
-            if resp.status !== 200:
+            if resp.status != 200:
                 logger.warning(f"Error on webhook send: {await resp.text()}")
 
     @classmethod
