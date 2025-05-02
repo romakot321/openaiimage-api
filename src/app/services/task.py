@@ -67,8 +67,8 @@ class TaskService:
             model = await self.prompt_repository.get(schema.model_id)
             prompt += model.text
 
-            if schema.user_inputs and prompt.user_inputs:
-                prompt_user_inputs_keys = [i.key for i in prompt.user_inputs]
+            if schema.user_inputs and model.user_inputs:
+                prompt_user_inputs_keys = [i.key for i in model.user_inputs]
                 for user_input in schema.user_inputs:
                     if user_input.key in prompt_user_inputs_keys:
                         prompt = prompt.format(**{user_input.key: user_input.value})
@@ -133,6 +133,7 @@ class TaskService:
         async with cls() as self:
             logger.info(f"Sending {task_id=}")
             await self.request_repository.update(request_id, status="sended")
+            await self.request_repository._commit()
 
             if image is not None:
                 self.storage_repository.delete_file(str(task_id))
@@ -154,10 +155,10 @@ class TaskService:
 
     async def process_requests(self):
         sended_count = await self.request_repository.count(status="sended")
-        if sended_count > 8:
+        if sended_count > 3:
             return
         requests = await self.request_repository.list(
-            not_sended=True, count=8 - sended_count
+            not_sended=True, count=3 - sended_count
         )
         tasks = []
         for request in requests:
