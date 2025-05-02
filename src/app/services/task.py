@@ -122,6 +122,13 @@ class TaskService:
         model = await self.task_repository.get(task_id)
         return TaskSchema.model_validate(model)
 
+    async def send_webhook(self, task_id: UUID, webhook_url: str):
+        task = await self.get(task_id)
+        async with ClientSession() as session:
+            resp = await session.post(webhook_url, json=task.model_dump())
+            if resp.status !== 200:
+                logger.warning(f"Error on webhook send: {await resp.text()}")
+
     @classmethod
     async def _process_request(
         cls,
@@ -141,6 +148,9 @@ class TaskService:
                 await self.send_txt2img(task_id, schema)
 
             await self.request_repository.delete(request_id)
+            await self.task_repository._commit()
+            if schema.webhook_url is not None:
+                await self.send_webhook(task_id, schema.webhook_url)
             logger.info(f"Finished {task_id=}")
 
     async def add_request(
