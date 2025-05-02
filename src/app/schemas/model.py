@@ -6,6 +6,8 @@ class ModelUserInputSchema(BaseModel):
     key: str
     description: str
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class ModelSchema(BaseModel):
     id: UUID

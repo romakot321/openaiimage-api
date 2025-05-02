@@ -85,6 +85,9 @@ class Prompt(BaseMixin, Base):
 
     user_inputs: M[list['PromptUserInput']] = relationship(back_populates="prompt", lazy="selectin")
 
+    def __str__(self) -> str:
+        return f"Prompt {self.title}"
+
 
 class TaskImage(BaseMixin, Base):
     external_id: M[str]
