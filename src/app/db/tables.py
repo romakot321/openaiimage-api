@@ -61,8 +61,8 @@ class Task(BaseMixin, Base):
     user_id: M[str]
     app_bundle: M[str]
 
-    items: M[list['TaskItem']] = relationship(back_populates='task', lazy='selectin')
-    images: M[list['TaskImage']] = relationship(back_populates="task", lazy='selectin')
+    items: M[list['TaskItem']] = relationship(back_populates='task', lazy='selectin', cascade="all,delete")
+    images: M[list['TaskImage']] = relationship(back_populates="task", lazy='selectin', cascade="all,delete")
     context: M['Context'] = relationship(back_populates="tasks", lazy="noload")
 
 
@@ -108,8 +108,8 @@ class TaskRequest(BaseMixin, Base):
 class Context(BaseMixin, Base):
     user_id: M[str]
 
-    entities: M[list["ContextEntity"]] = relationship(back_populates="context", lazy="selectin")
-    tasks: M[list["Task"]] = relationship(back_populates="context", lazy="selectin")
+    entities: M[list["ContextEntity"]] = relationship(back_populates="context", lazy="selectin", cascade="all,delete")
+    tasks: M[list["Task"]] = relationship(back_populates="context", lazy="selectin", cascade="all,delete")
 
 
 class ContextEntityContentType(Enum):

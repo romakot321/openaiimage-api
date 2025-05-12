@@ -122,6 +122,22 @@ class TaskService:
         request = ExternalText2ImageTaskSchema(
             prompt=prompt, size=schema.size, quality=schema.quality
         )
+        images = []
+
+        if schema.context is not None:
+            for context_image_filename in schema.context.images_filenames:
+                if not self.storage_repository.exists(context_image_filename):
+                    continue
+                context_image = BytesIO(self.storage_repository.get_file(context_image_filename))
+                images.append(self._convert_image(context_image))
+
+        if images:
+            request = ExternalImage2ImageTaskSchema(
+                prompt=prompt, size=schema.size, images=images, quality=schema.quality
+            )
+            return await self._send(
+                task_id, schema.context_id, self.external_repository.generate_image2image(request)
+            )
         return await self._send(
             task_id, schema.context_id, self.external_repository.generate_text2image(request)
         )
@@ -215,7 +231,7 @@ class TaskService:
             self.sended_tasks.append(str(request.task_id))
             image = None
 
-            if self.storage_repository.exists(str(request.task_id)):
+            if self.storage_repository.exists(str(request.task_id) + "-request"):
                 image = BytesIO(self.storage_repository.get_file(str(request.task_id) + "-request"))
 
             asyncio.create_task(
