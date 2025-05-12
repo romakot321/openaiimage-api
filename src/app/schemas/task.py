@@ -35,19 +35,15 @@ class TaskUserInputSchema(BaseModel):
     value: str
 
 
-class TaskCreateSchema(BaseModel):
-    user_prompt: str | None = Field(default=None, max_length=32000)
-    user_inputs: list[TaskUserInputSchema] | None = None
-    model_id: str | None = None
-    webhook_url: str | None = None
+class _TaskCreateSchema(BaseModel):
+    task_type: SkipJsonSchema[str]
     context_id: UUID | str | None = None
     context: SkipJsonSchema[ContextBuilded | None] = None
-    size: ExternalImageSize
-    quality: ExternalImageQuality
+    webhook_url: str | None = None
     user_id: str
     app_bundle: str
 
-    @field_validator('context_id', mode="before")
+    @field_validator("context_id", mode="before")
     def validate_context_id(cls, value: str) -> UUID | str | None:
         if value is None:
             return value
@@ -57,9 +53,42 @@ class TaskCreateSchema(BaseModel):
         try:
             UUID(value)
         except ValueError:
-            raise PydanticCustomError("Invalid context_id", "Context id should be UUID or 'last'")
+            raise PydanticCustomError(
+                "Invalid context_id", "Context id should be UUID or 'last'"
+            )
 
         return UUID(value)
+
+
+class TaskTextCreateSchema(_TaskCreateSchema):
+    task_type: SkipJsonSchema[str] = "text"
+    prompt: str
+
+    @classmethod
+    def as_form(
+        cls,
+        prompt: str = Form(),
+        context_id: UUID | str | None = Form(None),
+        webhook_url: str | None = Form(None),
+        user_id: str = Form(),
+        app_bundle: str = Form(),
+    ):
+        return cls(
+            prompt=prompt,
+            context_id=context_id,
+            user_id=user_id,
+            app_bundle=app_bundle,
+            webhook_url=webhook_url
+        )
+
+
+class TaskImageCreateSchema(_TaskCreateSchema):
+    task_type: SkipJsonSchema[str] = "image"
+    user_prompt: str | None = Field(default=None, max_length=32000)
+    user_inputs: list[TaskUserInputSchema] | None = None
+    model_id: str | None = None
+    size: ExternalImageSize
+    quality: ExternalImageQuality
 
     @classmethod
     def as_form(
@@ -85,3 +114,8 @@ class TaskCreateSchema(BaseModel):
             user_id=user_id,
             app_bundle=app_bundle,
         )
+
+
+class TaskStatisticsSchema(BaseModel):
+    remaining_tokens: int
+    remaining_requests: int
