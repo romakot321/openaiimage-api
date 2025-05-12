@@ -1,8 +1,10 @@
 from uuid import UUID
 from fastapi import Form
 from pydantic import BaseModel, ConfigDict, Field
+from pydantic.json_schema import SkipJsonSchema
 
 from app.schemas import BaseSearchSchema
+from app.schemas.context import ContextBuilded
 from app.schemas.external import ExternalImageSize, ExternalImageQuality
 
 
@@ -37,6 +39,8 @@ class TaskCreateSchema(BaseModel):
     user_inputs: list[TaskUserInputSchema] | None = None
     model_id: str | None = None
     webhook_url: str | None = None
+    context_id: UUID | None = None
+    context: SkipJsonSchema[ContextBuilded | None] = None
     size: ExternalImageSize
     quality: ExternalImageQuality
     user_id: str
@@ -47,6 +51,7 @@ class TaskCreateSchema(BaseModel):
         cls,
         user_prompt: str | None = Form(None),
         webhook_url: str | None = Form(None),
+        context_id: UUID | None = Form(None),
         user_inputs: list[TaskUserInputSchema] | None = Form(None),
         model_id: str | None = Form(None),
         quality: ExternalImageQuality = Form(ExternalImageQuality.auto),
@@ -57,6 +62,7 @@ class TaskCreateSchema(BaseModel):
         return cls(
             user_prompt=user_prompt,
             user_inputs=user_inputs,
+            context_id=context_id,
             webhook_url=webhook_url,
             model_id=model_id,
             size=size,

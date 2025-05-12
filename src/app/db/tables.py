@@ -3,7 +3,7 @@ import uuid
 from uuid import UUID
 from enum import Enum, auto
 
-from sqlalchemy import LargeBinary, bindparam
+from sqlalchemy import TEXT, LargeBinary, bindparam
 from sqlalchemy import CheckConstraint
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -101,4 +101,30 @@ class TaskRequest(BaseMixin, Base):
     task_id: M[UUID] = column(ForeignKey('tasks.id', ondelete="CASCADE"))
     schema: M[str]
     status: M[str | None]
+
+
+class Context(BaseMixin, Base):
+    user_id: M[str]
+
+    entities: M[list["ContextEntity"]] = relationship(back_populates="context", lazy="selectin")
+
+
+class ContextEntityContentType(Enum):
+    image = 'image'
+    text = 'text'
+
+
+class ContextEntityRole(Enum):
+    user = 'user'
+    assistant = 'assistant'
+    system = 'system'
+
+
+class ContextEntity(BaseMixin, Base):
+    content_type: M[ContextEntityContentType]
+    content: M[str] = column(doc="Prompt or image filename from storage")
+    role: M[ContextEntityRole]
+    context_id: M[str] = column(ForeignKey("contexts.id", ondelete="CASCADE"))
+
+    context: M['Context'] = relationship(back_populates="entities", lazy="noload")
 

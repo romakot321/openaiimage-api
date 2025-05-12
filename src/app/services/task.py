@@ -9,7 +9,7 @@ from fastapi import Depends, HTTPException
 import base64
 import os
 
-from app.db.tables import TaskItem
+from app.db.tables import ContextEntityRole, TaskItem
 from app.repositories.openai import OpenAIRepository
 from app.repositories.prompt import PromptRepository
 from app.repositories.task import TaskRepository
@@ -20,6 +20,7 @@ from app.schemas.external import (
 )
 from app.repositories.storage import StorageRepository
 from app.schemas.task import TaskCreateSchema, TaskSchema, TaskShortSchema
+from app.services.context import ContextService
 
 
 class TaskService:
@@ -61,8 +62,14 @@ class TaskService:
         converted.seek(0)
         return converted
 
-    async def build_prompt(self, schema: TaskCreateSchema) -> str:
+    async def build_prompt(self, schema: TaskCreateSchema, include_context: bool = True) -> str:
         prompt = ""
+
+        if schema.context is not None and include_context:
+            for entity in schema.context.entities:
+                if entity.content in schema.context.images_filenames:
+                    continue
+                prompt += f'{entity.role}: {entity.content}\n'
 
         if schema.model_id is not None:
             model = await self.prompt_repository.get(schema.model_id)
@@ -79,7 +86,7 @@ class TaskService:
 
         return prompt
 
-    async def _send(self, task_id: UUID, method: Coroutine):
+    async def _send(self, task_id: UUID, context_id: UUID | None, method: Coroutine):
         try:
             result = await method
         except Exception as e:
@@ -88,13 +95,19 @@ class TaskService:
 
         if result is None:
             return await self.task_repository.update(task_id, error="Generation error")
+        filename = str(task_id) + "-result"
         if not result.startswith("http"):
-            self.storage_repository.store_file(str(task_id), base64.b64decode(result))
+            self.storage_repository.store_file(filename, base64.b64decode(result))
             result = self.external_url + f"/api/task/{task_id}/result"
 
         await self.task_repository.create_items(
             TaskItem(task_id=task_id, result_url=result)
         )
+
+        if context_id is None:
+            return
+        async with ContextService() as context_service:
+            await context_service.add_entity_image(context_id, filename, ContextEntityRole.assistant)
 
     async def send_txt2img(self, task_id: UUID, schema: TaskCreateSchema):
         print("txt2img")
@@ -111,9 +124,15 @@ class TaskService:
     ):
         print("img2img")
         prompt = await self.build_prompt(schema)
-        image = self._convert_image(image)
+        images = [self._convert_image(image)]
+        if schema.context is not None:
+            for context_image_filename in schema.context.images_filenames:
+                if not self.storage_repository.exists(context_image_filename):
+                    continue
+                context_image = BytesIO(self.storage_repository.get_file(context_image_filename))
+                images.append(self._convert_image(context_image))
         request = ExternalImage2ImageTaskSchema(
-            prompt=prompt, size=schema.size, image=image, quality=schema.quality
+            prompt=prompt, size=schema.size, images=images, quality=schema.quality
         )
         return await self._send(
             task_id, self.external_repository.generate_image2image(request)
@@ -144,7 +163,6 @@ class TaskService:
             await self.request_repository._commit()
 
             if image is not None:
-                self.storage_repository.delete_file(str(task_id))
                 await self.send_img2img(task_id, schema, image)
             else:
                 await self.send_txt2img(task_id, schema)
@@ -158,11 +176,21 @@ class TaskService:
     async def add_request(
         self, task_id: UUID, schema: TaskCreateSchema, image: BytesIO | None = None
     ):
+        if schema.context_id is not None:
+            prompt = await self.build_prompt(schema, include_context=False)
+
+            async with ContextService() as context_service:
+                schema.context = await context_service.build_context(schema.context_id)
+
+                await context_service.add_entity_text(schema.context_id, prompt, ContextEntityRole.user)
+                if image is not None:
+                    await context_service.add_entity_image(schema.context_id, str(task_id) + "-request", ContextEntityRole.user)
+
         await self.request_repository.create(
             task_id=task_id, schema=schema.model_dump_json()
         )
         if image is not None:
-            self.storage_repository.store_file(str(task_id), image.getvalue())
+            self.storage_repository.store_file(str(task_id) + "-request", image.getvalue())
 
     async def process_requests(self):
         sended_count = await self.request_repository.count(status="sended")
@@ -176,7 +204,7 @@ class TaskService:
             image = None
 
             if self.storage_repository.exists(str(request.task_id)):
-                image = BytesIO(self.storage_repository.get_file(str(request.task_id)))
+                image = BytesIO(self.storage_repository.get_file(str(request.task_id) + "-request"))
 
             asyncio.create_task(
                 self._process_request(
@@ -203,4 +231,4 @@ class TaskService:
         await self.task_repository.__aexit__(*exinfo)
 
     def get_result(self, task_id: UUID) -> bytes:
-        return self.storage_repository.get_file(str(task_id))
+        return self.storage_repository.get_file(str(task_id) + '-result')

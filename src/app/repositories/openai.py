@@ -11,12 +11,13 @@ class OpenAIRepository:
         self.client = AsyncOpenAI()
 
     async def generate_image2image(self, request: ExternalImage2ImageTaskSchema) -> str | None:
-        image = request.image
-        image.name = "tmp.png"
+        images = request.images
+        for image in images:
+            image.name = "tmp.png"
         response = await self.client.images.edit(
             model="gpt-image-1",
             prompt=request.prompt,
-            image=image,
+            image=images,
             size=request.size.value,
             n=1,
         )

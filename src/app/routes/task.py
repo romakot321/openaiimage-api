@@ -5,6 +5,7 @@ from fastapi.responses import Response
 from uuid import UUID
 
 from app.schemas.task import TaskCreateSchema, TaskSchema, TaskShortSchema
+from app.services.context import ContextService
 from app.services.task import TaskService
 from . import validate_api_token
 

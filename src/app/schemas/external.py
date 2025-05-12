@@ -20,7 +20,7 @@ class ExternalImage2ImageTaskSchema(BaseModel):
     prompt: str
     size: ExternalImageSize
     quality: ExternalImageQuality
-    image: BytesIO
+    images: list[BytesIO]
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
