@@ -25,6 +25,7 @@ from app.services.context import ContextService
 
 class TaskService:
     external_url = os.getenv("EXTERNAL_URL")
+    sended_tasks = []
 
     def __init__(
         self,
@@ -69,7 +70,7 @@ class TaskService:
             for entity in schema.context.entities:
                 if entity.content in schema.context.images_filenames:
                     continue
-                prompt += f'{entity.role}: {entity.content}\n'
+                prompt += f'{entity.role.value}: {entity.content}\n'
 
         if schema.model_id is not None:
             model = await self.prompt_repository.get(schema.model_id)
@@ -82,7 +83,9 @@ class TaskService:
                         prompt = prompt.format(**{user_input.key: user_input.value})
 
         elif schema.user_prompt:
-            prompt = schema.user_prompt
+            prompt += schema.user_prompt
+
+        logger.debug(prompt)
 
         return prompt
 
@@ -110,19 +113,17 @@ class TaskService:
             await context_service.add_entity_image(context_id, filename, ContextEntityRole.assistant)
 
     async def send_txt2img(self, task_id: UUID, schema: TaskCreateSchema):
-        print("txt2img")
         prompt = await self.build_prompt(schema)
         request = ExternalText2ImageTaskSchema(
             prompt=prompt, size=schema.size, quality=schema.quality
         )
         return await self._send(
-            task_id, self.external_repository.generate_text2image(request)
+            task_id, schema.context_id, self.external_repository.generate_text2image(request)
         )
 
     async def send_img2img(
         self, task_id: UUID, schema: TaskCreateSchema, image: BytesIO
     ):
-        print("img2img")
         prompt = await self.build_prompt(schema)
         images = [self._convert_image(image)]
         if schema.context is not None:
@@ -134,8 +135,9 @@ class TaskService:
         request = ExternalImage2ImageTaskSchema(
             prompt=prompt, size=schema.size, images=images, quality=schema.quality
         )
+        logger.debug(request)
         return await self._send(
-            task_id, self.external_repository.generate_image2image(request)
+            task_id, schema.context_id, self.external_repository.generate_image2image(request)
         )
 
     async def get(self, task_id: UUID) -> TaskSchema:
@@ -201,6 +203,9 @@ class TaskService:
         )
         tasks = []
         for request in requests:
+            if str(request.task_id) in self.sended_tasks:
+                continue
+            self.sended_tasks.append(str(request.task_id))
             image = None
 
             if self.storage_repository.exists(str(request.task_id)):

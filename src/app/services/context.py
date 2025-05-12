@@ -28,7 +28,7 @@ class ContextService:
     async def get(self, context_id: UUID) -> ContextSchema:
         model = await self.context_repository.get(context_id)
         usage = await self._get_usage(context_id)
-        return ContextSchema.model_validate(model.__dict__ | {"text_available": self.MAX_TEXT_LENGTH - usage["text"], "images_available": self.MAX_IMAGES_COUNT - usage["image"]})
+        return ContextSchema.model_validate(model.__dict__ | {"text_available": self.MAX_TEXT_LENGTH - usage["text"], "images_available": self.MAX_IMAGES_COUNT - usage["images"]})
 
     async def delete(self, context_id: UUID):
         await self.context_repository.delete(context_id)
