@@ -18,6 +18,7 @@ class OpenAIRepository:
             model="gpt-image-1",
             prompt=request.prompt,
             image=images,
+            quality=request.quality.value,
             size=request.size.value,
             n=1,
         )
