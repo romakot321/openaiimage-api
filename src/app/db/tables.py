@@ -57,11 +57,13 @@ class TaskItem(Base):
 
 class Task(BaseMixin, Base):
     error: M[str | None] = column(nullable=True)
+    context_id: M[UUID | None] = column(ForeignKey("contexts.id", ondelete="CASCADE"))
     user_id: M[str]
     app_bundle: M[str]
 
     items: M[list['TaskItem']] = relationship(back_populates='task', lazy='selectin')
     images: M[list['TaskImage']] = relationship(back_populates="task", lazy='selectin')
+    context: M['Context'] = relationship(back_populates="tasks", lazy="noload")
 
 
 class PromptUserInput(Base):
@@ -107,6 +109,7 @@ class Context(BaseMixin, Base):
     user_id: M[str]
 
     entities: M[list["ContextEntity"]] = relationship(back_populates="context", lazy="selectin")
+    tasks: M[list["Task"]] = relationship(back_populates="context", lazy="selectin")
 
 
 class ContextEntityContentType(Enum):

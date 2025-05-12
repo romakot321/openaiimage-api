@@ -1,7 +1,8 @@
 from uuid import UUID
 from fastapi import Form
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic.json_schema import SkipJsonSchema
+from pydantic_core import PydanticCustomError
 
 from app.schemas import BaseSearchSchema
 from app.schemas.context import ContextBuilded
@@ -39,19 +40,33 @@ class TaskCreateSchema(BaseModel):
     user_inputs: list[TaskUserInputSchema] | None = None
     model_id: str | None = None
     webhook_url: str | None = None
-    context_id: UUID | None = None
+    context_id: UUID | str | None = None
     context: SkipJsonSchema[ContextBuilded | None] = None
     size: ExternalImageSize
     quality: ExternalImageQuality
     user_id: str
     app_bundle: str
 
+    @field_validator('context_id', mode="before")
+    def validate_context_id(cls, value: str) -> UUID | str | None:
+        if value is None:
+            return value
+        elif value == "last":
+            return value
+
+        try:
+            UUID(value)
+        except ValueError:
+            raise PydanticCustomError("Invalid context_id", "Context id should be UUID or 'last'")
+
+        return UUID(value)
+
     @classmethod
     def as_form(
         cls,
         user_prompt: str | None = Form(None),
         webhook_url: str | None = Form(None),
-        context_id: UUID | None = Form(None),
+        context_id: UUID | str | None = Form(None),
         user_inputs: list[TaskUserInputSchema] | None = Form(None),
         model_id: str | None = Form(None),
         quality: ExternalImageQuality = Form(ExternalImageQuality.auto),

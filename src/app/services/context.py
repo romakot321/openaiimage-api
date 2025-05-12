@@ -23,11 +23,16 @@ class ContextService:
 
     async def create(self, schema: ContextCreateSchema) -> ContextSchema:
         model = await self.context_repository.create(**schema.model_dump())
-        return ContextSchema.model_validate(model.__dict__ | {"text_available": self.MAX_TEXT_LENGTH, "images_available": self.MAX_IMAGES_COUNT})
+        return ContextSchema.model_validate(model.__dict__ | {"text_available": self.MAX_TEXT_LENGTH, "images_available": self.MAX_IMAGES_COUNT, "tasks": []})
 
     async def get(self, context_id: UUID) -> ContextSchema:
         model = await self.context_repository.get(context_id)
         usage = await self._get_usage(context_id)
+        return ContextSchema.model_validate(model.__dict__ | {"text_available": self.MAX_TEXT_LENGTH - usage["text"], "images_available": self.MAX_IMAGES_COUNT - usage["images"]})
+
+    async def get_last(self, user_id: str) -> ContextSchema:
+        model = await self.context_repository.get_last(user_id)
+        usage = await self._get_usage(model.id)
         return ContextSchema.model_validate(model.__dict__ | {"text_available": self.MAX_TEXT_LENGTH - usage["text"], "images_available": self.MAX_IMAGES_COUNT - usage["images"]})
 
     async def delete(self, context_id: UUID):

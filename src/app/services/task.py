@@ -48,8 +48,13 @@ class TaskService:
             raise HTTPException(
                 422, detail="Model id and prompt cannot be None at one time"
             )
+
+        if schema.context_id == "last":
+            async with ContextService() as context_service:
+                schema.context_id = (await context_service.get_last(schema.user_id)).id
+
         model = await self.task_repository.create(
-            user_id=schema.user_id, app_bundle=schema.app_bundle
+            user_id=schema.user_id, app_bundle=schema.app_bundle, context_id=schema.context_id
         )
         return TaskShortSchema.model_validate(model)
 
@@ -182,6 +187,8 @@ class TaskService:
             prompt = await self.build_prompt(schema, include_context=False)
 
             async with ContextService() as context_service:
+                if schema.context_id == "last":
+                    schema.context_id = (await context_service.get_last(schema.user_id)).id
                 schema.context = await context_service.build_context(schema.context_id)
 
                 await context_service.add_entity_text(schema.context_id, prompt, ContextEntityRole.user)

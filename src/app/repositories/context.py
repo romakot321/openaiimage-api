@@ -1,12 +1,12 @@
 from contextlib import suppress
 from fastapi import Response, HTTPException
 from loguru import logger
-from sqlalchemy import exc
+from sqlalchemy import exc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_service import BaseService as BaseRepository
 from uuid import UUID
 
-from app.db.tables import Context, engine
+from app.db.tables import Context, Task, engine
 
 
 class ContextRepository[Table: Context, int](BaseRepository):
@@ -47,8 +47,15 @@ class ContextRepository[Table: Context, int](BaseRepository):
     async def get(self, model_id: UUID) -> Context:
         return await self._get_one(
             id=model_id,
-            select_in_load=[Context.entities]
+            select_in_load=[Context.entities, {"parent": Context.tasks, "children": [Task.items]}]
         )
+
+    async def get_last(self, user_id: str) -> Context:
+        query = select(Context).filter_by(user_id=user_id).order_by(Context.created_at.desc()).limit(1)
+        model = await self.session.scalar(query)
+        if model is None:
+            raise HTTPException(404)
+        return model
 
     async def update(self, model_id: UUID, **fields) -> Context:
         return await self._update(model_id, **fields)

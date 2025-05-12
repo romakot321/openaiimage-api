@@ -12,9 +12,23 @@ class ContextEntitySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ContextTaskSchema(BaseModel):
+    class TaskItem(BaseModel):
+        id: int
+        result_url: str
+
+        model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    items: list[TaskItem]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ContextSchema(BaseModel):
     id: UUID
     user_id: str
+    tasks: list[ContextTaskSchema]
     text_available: int
     images_available: int
 
