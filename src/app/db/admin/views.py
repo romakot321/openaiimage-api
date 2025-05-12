@@ -3,10 +3,11 @@ from app.db.tables import Task, Prompt, TaskItem, TaskImage, PromptUserInput
 from sqladmin import ModelView
 from sqladmin.formatters import Markup
 from wtforms import FileField
+import base64
 
 
 def format_image_url(model, attribute) -> Markup:
-    return Markup(f'<img src="{getattr(model, attribute)}" />')
+    return Markup(f'<img src="data:image/png;base64, {base64.b64encode(getattr(model, attribute)).decode()}" />')
 
 
 class TaskView(ModelView, model=Task):
