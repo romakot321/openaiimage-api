@@ -15,6 +15,8 @@ class ContextEntitySchema(BaseModel):
 class ContextSchema(BaseModel):
     id: UUID
     user_id: str
+    text_available: int
+    images_available: int
 
     model_config = ConfigDict(from_attributes=True)
 

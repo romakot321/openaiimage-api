@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_service import BaseService as BaseRepository
 from uuid import UUID
 
-from app.db.tables import ContextEntity, ContextEntityItem, engine
+from app.db.tables import ContextEntity, engine
 
 
 class ContextEntityRepository[Table: ContextEntity, int](BaseRepository):
