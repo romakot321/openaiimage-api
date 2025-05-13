@@ -1,7 +1,7 @@
 import io
 from fastapi import Request
 from starlette.datastructures import FormData, UploadFile
-from app.db.tables import Task, Prompt, TaskItem, TaskImage, PromptUserInput
+from app.db.tables import PromptCategory, Task, Prompt, TaskItem, TaskImage, PromptUserInput
 from sqladmin import ModelView
 from sqladmin.formatters import Markup
 from wtforms import FileField
@@ -69,6 +69,11 @@ class PromptView(ModelView, model=Prompt):
             if not data['image']:
                 data['image'] = None
         return data
+
+
+class PromptCategoryView(ModelView, model=PromptCategory):
+    column_list = "__all__"
+    column_searchable_list = [PromptCategory.id, PromptCategory.name]
 
 
 class PromptUserInputView(ModelView, model=PromptUserInput):

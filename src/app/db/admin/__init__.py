@@ -4,7 +4,7 @@ from starlette.datastructures import FormData, UploadFile
 from starlette.requests import Request
 import io
 
-from .views import TaskView, PromptView, TaskImageView, TaskItemView, PromptUserInputView
+from .views import PromptCategoryView, TaskView, PromptView, TaskImageView, TaskItemView, PromptUserInputView
 from .auth import authentication_backend
 from app.db.tables import engine
 
@@ -45,4 +45,5 @@ def attach_admin_panel(application: FastAPI):
     admin.add_view(TaskImageView)
     admin.add_view(TaskItemView)
     admin.add_view(PromptUserInputView)
+    admin.add_view(PromptCategoryView)
 

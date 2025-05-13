@@ -84,8 +84,10 @@ class Prompt(BaseMixin, Base):
     for_image: M[bool]
     for_video: M[bool]
     image: M[bytes | None] = column(type_=LargeBinary, nullable=True)
+    category_name: M[str | None] = column(ForeignKey("prompt_categories.id", ondelete="CASCADE"))
 
     user_inputs: M[list['PromptUserInput']] = relationship(back_populates="prompt", lazy="selectin")
+    category: M['PromptCategory'] = relationship(back_populates="prompts", lazy="noload")
 
     def __str__(self) -> str:
         return f"Prompt {self.title}"
@@ -130,4 +132,12 @@ class ContextEntity(BaseMixin, Base):
     context_id: M[str] = column(ForeignKey("contexts.id", ondelete="CASCADE"))
 
     context: M['Context'] = relationship(back_populates="entities", lazy="noload")
+
+
+class PromptCategory(BaseMixin, Base):
+    __tablename__ = "prompt_categories"
+
+    name: M[str] = column(unique=True)
+
+    prompts: M[list["Prompt"]] = relationship(back_populates="category", lazy="selectin")
 
