@@ -9,6 +9,8 @@ import base64
 
 
 def format_image_url(model, attribute) -> Markup:
+    if attribute not in model.__dict__ or getattr(model, attribute) is None:
+        return Markup('<div></div>')
     return Markup(f'<img src="data:image/png;base64, {base64.b64encode(getattr(model, attribute)).decode()}" />')
 
 

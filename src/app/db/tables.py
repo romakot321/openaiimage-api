@@ -76,6 +76,9 @@ class PromptUserInput(Base):
 
     prompt: M['Prompt'] = relationship(back_populates="user_inputs", lazy="noload")
 
+    def __str__(self) -> str:
+        return f"Input {self.description}"
+
 
 class Prompt(BaseMixin, Base):
     text: M[str]
@@ -141,3 +144,5 @@ class PromptCategory(BaseMixin, Base):
 
     prompts: M[list["Prompt"]] = relationship(back_populates="category", lazy="selectin")
 
+    def __str__(self) -> str:
+        return f"Category {self.name}"

@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, Response
 from uuid import UUID
 
 from app.routes import validate_api_token
-from app.schemas.model import ModelCategorySearchSchema, ModelCategorySchema
-from app.services.model import ModelCategoryService
+from app.schemas.model_category import ModelCategorySearchSchema, ModelCategorySchema
+from app.services.model_category import ModelCategoryService
 
-router = APIRouter(prefix="/api/model", tags=["ModelCategory"])
+router = APIRouter(prefix="/api/model/category", tags=["ModelCategory"])
 
 
 @router.get(

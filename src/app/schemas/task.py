@@ -1,9 +1,11 @@
 from uuid import UUID
 import json
-from fastapi import Form
+from fastapi import Form, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import ValidationError
 from pydantic.json_schema import SkipJsonSchema
 from pydantic_core import PydanticCustomError
+from fastapi.encoders import jsonable_encoder
 
 from app.schemas import BaseSearchSchema
 from app.schemas.context import ContextBuilded
@@ -34,16 +36,6 @@ class TaskShortSchema(BaseModel):
 class TaskUserInputSchema(BaseModel):
     key: str
     value: str
-
-    @model_validator(mode='before')
-    @classmethod
-    def validate_to_json(cls, value):
-        if isinstance(value, str):
-            decoded = json.loads(value)
-            if not isinstance(decoded, list):
-                decoded = [decoded]
-            return [cls(**i) for i in decoded]
-        return value
 
 
 class _TaskCreateSchema(BaseModel):
@@ -107,16 +99,30 @@ class TaskImageCreateSchema(_TaskCreateSchema):
         user_prompt: str | None = Form(None),
         webhook_url: str | None = Form(None),
         context_id: UUID | str | None = Form(None),
-        user_inputs: list[TaskUserInputSchema] | None = Form(None),
+        user_inputs: list[str] | None = Form(None),
         model_id: str | None = Form(None),
         quality: ExternalImageQuality = Form(ExternalImageQuality.auto),
         size: ExternalImageSize = Form(),
         user_id: str = Form(),
         app_bundle: str = Form(),
     ):
+        user_inputs_validated = []
+        try:
+            for inp in user_inputs:
+                if isinstance(inp, str):
+                    inp = json.loads(inp)
+                if not isinstance(inp, list):
+                    inp = [inp]
+                for i in inp:
+                    user_inputs_validated.append(TaskUserInputSchema.model_validate(i))
+        except ValidationError as e:
+            raise HTTPException(
+                detail=jsonable_encoder(e.errors()),
+                status_code=422,
+            )
         return cls(
             user_prompt=user_prompt,
-            user_inputs=user_inputs,
+            user_inputs=user_inputs_validated,
             context_id=context_id,
             webhook_url=webhook_url,
             model_id=model_id,
