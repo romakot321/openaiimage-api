@@ -67,11 +67,13 @@ def init_web_application():
 
     from app.routes.task import router as task_router
     from app.routes.model import router as model_router
+    from app.routes.model_category import router as model_category_router
     from app.routes.context import router as context_router
 
     application.include_router(task_router)
     application.include_router(model_router)
     application.include_router(context_router)
+    application.include_router(model_category_router)
     # application.mount("/static", StaticFiles(directory="static"), name="static")
 
     attach_admin_panel(application)
