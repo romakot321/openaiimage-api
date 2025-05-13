@@ -43,12 +43,12 @@ async def create_task_text2image(
 @router.post("/text/text", response_model=TaskShortSchema, dependencies=[Depends(validate_api_token)])
 async def create_task_text2text(
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(),
+    file: UploadFile | None = None,
     schema: TaskTextCreateSchema = Depends(TaskTextCreateSchema.as_form),
     service: TaskService = Depends(),
 ):
     task = await service.create(schema)
-    await service.add_request(task.id, schema, BytesIO(await file.read()))
+    await service.add_request(task.id, schema, (BytesIO(await file.read()) if file else None))
     return task
 
 

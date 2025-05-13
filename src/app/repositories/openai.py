@@ -19,14 +19,15 @@ class OpenAIRepository:
     async def generate_text2text(
         self, request: ExternalText2TextTaskSchema
     ) -> ExternalResponse:
-        response = await self.client.responses.create(
-            **request.model_dump(exclude_none=True)
+        raw_response = await self.client.responses.with_raw_response.create(
+            **request.model_dump()
         )
+        response = raw_response.parse()
         return ExternalResponse(
             content=response.output_text,
-            remaining_requests=response.headers.get("x-ratelimit-remaining-requests"),
-            remaining_tokens=response.headers.get("x-ratelimit-remaining-tokens"),
-            reset_in=response.headers.get("x-ratelimit-reset-requests"),
+            remaining_requests=raw_response.headers.get("x-ratelimit-remaining-requests"),
+            remaining_tokens=raw_response.headers.get("x-ratelimit-remaining-tokens"),
+            reset_in=raw_response.headers.get("x-ratelimit-reset-requests"),
         )
 
     async def generate_image2image(
@@ -35,7 +36,7 @@ class OpenAIRepository:
         images = request.images
         for image in images:
             image.name = "tmp.png"
-        response = await self.client.images.edit(
+        raw_response = await self.client.images.with_raw_response.edit(
             model="gpt-image-1",
             prompt=request.prompt,
             image=images,
@@ -43,29 +44,31 @@ class OpenAIRepository:
             size=request.size.value,
             n=1,
         )
+        response = raw_response.parse()
 
         logger.debug(f"Get image response for: {request=} {response.usage}")
         return ExternalResponse(
             content=response.data[0].b64_json if response.data else None,
-            remaining_requests=response.headers.get("x-ratelimit-remaining-requests"),
-            remaining_tokens=response.headers.get("x-ratelimit-remaining-tokens"),
-            reset_in=response.headers.get("x-ratelimit-reset-requests"),
+            remaining_requests=raw_response.headers.get("x-ratelimit-remaining-requests"),
+            remaining_tokens=raw_response.headers.get("x-ratelimit-remaining-tokens"),
+            reset_in=raw_response.headers.get("x-ratelimit-reset-requests"),
         )
 
     async def generate_text2image(
         self, request: ExternalText2ImageTaskSchema
     ) -> ExternalResponse:
-        response = await self.client.images.generate(
+        raw_response = await self.client.images.with_raw_response.generate(
             model="gpt-image-1",
             prompt=request.prompt,
             size=request.size.value,
             n=1,
         )
+        response = raw_response.parse()
 
         logger.debug(f"Get image response for: {request=} {response.usage}")
         return ExternalResponse(
             content=response.data[0].b64_json if response.data else None,
-            remaining_requests=response.headers.get("x-ratelimit-remaining-requests"),
-            remaining_tokens=response.headers.get("x-ratelimit-remaining-tokens"),
-            reset_in=response.headers.get("x-ratelimit-reset-requests"),
+            remaining_requests=raw_response.headers.get("x-ratelimit-remaining-requests"),
+            remaining_tokens=raw_response.headers.get("x-ratelimit-remaining-tokens"),
+            reset_in=raw_response.headers.get("x-ratelimit-reset-requests"),
         )

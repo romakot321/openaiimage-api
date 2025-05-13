@@ -1,6 +1,7 @@
 from uuid import UUID
+import json
 from fastapi import Form
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic.json_schema import SkipJsonSchema
 from pydantic_core import PydanticCustomError
 
@@ -33,6 +34,16 @@ class TaskShortSchema(BaseModel):
 class TaskUserInputSchema(BaseModel):
     key: str
     value: str
+
+    @model_validator(mode='before')
+    @classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, str):
+            decoded = json.loads(value)
+            if not isinstance(decoded, list):
+                decoded = [decoded]
+            return [cls(**i) for i in decoded]
+        return value
 
 
 class _TaskCreateSchema(BaseModel):

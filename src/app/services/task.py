@@ -34,12 +34,14 @@ from app.schemas.task import (
 from app.services.context import ContextService
 
 
+remaining_requests: int | None = None
+remaining_tokens: int | None = None
+remaining_reset_in: str | None = None
+
+
 class TaskService:
     external_url = os.getenv("EXTERNAL_URL")
     sended_tasks: list[UUID] = []
-    remaining_requests: int | None = None
-    remaining_tokens: int | None = None
-    remaining_reset_in: str | None = None
 
     def __init__(
         self,
@@ -51,6 +53,11 @@ class TaskService:
         openai_repository: OpenAIRepository = Depends(),
         storage_repository: StorageRepository = Depends(),
     ):
+        global remaining_requests, remaining_tokens, remaining_reset_in
+        self.remaining_requests = remaining_requests
+        self.remaining_tokens = remaining_tokens
+        self.remaining_reset_in = remaining_reset_in
+
         self.task_repository = task_repository
         self.external_repository = openai_repository
         self.prompt_repository = prompt_repository
@@ -123,9 +130,9 @@ class TaskService:
             await self.task_repository.update(task_id, error=str(e))
             return None
 
-        TaskService.remaining_tokens = result.remaining_tokens
-        TaskService.remaining_requests = result.remaining_requests
-        TaskService.remaining_reset_in = result.reset_in
+        self.remaining_tokens = result.remaining_tokens
+        self.remaining_requests = result.remaining_requests
+        self.remaining_reset_in = result.reset_in
 
         if result.content is None:
             await self.task_repository.update(task_id, error="Generation error")
@@ -211,7 +218,7 @@ class TaskService:
         if image is not None:
             request_input.append(
                 ExternalText2TextTaskSchema.ImageMessage(
-                    role=ContextEntityRole.assistant.value,
+                    role=ContextEntityRole.user.value,
                     content=[
                         ExternalText2TextTaskSchema.ImageMessage.ImageContent(
                             image_url="data:image/png;base64,"
@@ -297,7 +304,7 @@ class TaskService:
     async def send_webhook(self, task_id: UUID, webhook_url: str):
         task = await self.get(task_id)
         async with ClientSession() as session:
-            resp = await session.post(webhook_url, json=task.model_dump())
+            resp = await session.post(webhook_url, data=task.model_dump_json())
             if resp.status != 200:
                 logger.warning(f"Error on webhook send: {await resp.text()}")
 
@@ -331,7 +338,7 @@ class TaskService:
             await self.request_repository.delete(request_id)
             await self.task_repository._commit()
             if isinstance(create_schema, BaseModel) and create_schema.webhook_url is not None:
-                await self.send_webhook(task_id, schema.webhook_url)
+                await self.send_webhook(task_id, create_schema.webhook_url)
             elif isinstance(create_schema, dict) and create_schema.get("webhook_url") is not None:
                 await self.send_webhook(task_id, create_schema.get("webhook_url"))
             logger.info(f"Finished {task_id=}")
@@ -393,7 +400,7 @@ class TaskService:
                 self._process_request(
                     request.id,
                     request.task_id,
-                    TaskImageCreateSchema.model_validate_json(request.schema),
+                    request.schema,
                     image=image,
                 )
             )
@@ -406,16 +413,16 @@ class TaskService:
 
     def get_statistics(self) -> TaskStatisticsSchema:
         if (
-            TaskService.remaining_requests is None
-            or TaskService.remaining_tokens is None
+            self.remaining_requests is None
+            or self.remaining_tokens is None
         ):
             raise HTTPException(
                 500,
                 detail="Remaining info is not stored. Please, wait for at least one request processed",
             )
         return TaskStatisticsSchema(
-            remaining_requests=TaskService.remaining_requests,
-            remaining_tokens=TaskService.remaining_tokens,
+            remaining_requests=self.remaining_requests,
+            remaining_tokens=self.remaining_tokens,
         )
 
     async def __aenter__(self):
