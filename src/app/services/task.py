@@ -358,7 +358,10 @@ class TaskService:
         image: BytesIO | None = None,
     ):
         if schema.context_id is not None:
-            prompt = await self.build_prompt(schema, include_context=False)
+            try:
+                prompt = await self.build_prompt(schema, include_context=False)
+            except Exception as e:
+                raise HTTPException(409, detail=str(e))
 
             async with ContextService() as context_service:
                 if schema.context_id == "last":
