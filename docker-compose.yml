@@ -1,35 +1,83 @@
 version: '3'
 
-name: openaiimage-api
-
 services:
   app:
     build:
       context: ./
-    container_name: openaiimageapi_app
+    container_name: klingapi_app
     depends_on:
-      - postgres
+      - db
     env_file:
       - .env
     restart: always
-    volumes:
-      - images:/app/storage
     networks:
       global_network:
       default:
+    volumes:
+      - app_localstorage:/app/storage
+      - ./logs/fastapi:/app/logs
 
-  postgres:
-    image: postgres:latest
-    container_name: openaiimageapi_db
-    restart: always
+  db:
+    image: postgres:16
+    container_name: klingapi_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./etc/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./logs/postgresql:/var/log/postgresql:z
     env_file:
       - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    restart: always
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       default:
+
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    container_name: klingapi_prometheus
+    depends_on:
+      - app
+    volumes:
+      - prometheus_data:/prometheus
+      - ./etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=7d"
+
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: klingapi_postgres_prometheus_exporter
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      DATA_SOURCE_NAME: postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/postgres?sslmode=disable
+    restart: always
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: klingapi_grafana
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./etc/grafana/provisioning:/usr/share/grafana/provisioning
+    env_file:
+      - .env
 
 networks:
   global_network:
     external: true
 
 volumes:
-  images:
+  postgres_data:
+  prometheus_data:
+  app_localstorage:
+  grafana_data:
