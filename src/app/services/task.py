@@ -304,7 +304,11 @@ class TaskService:
     async def send_webhook(self, task_id: UUID, webhook_url: str):
         task = await self.get(task_id)
         async with ClientSession() as session:
-            resp = await session.post(webhook_url, data=task.model_dump_json())
+            try:
+                resp = await session.post(webhook_url, data=task.model_dump_json())
+            except Exception as e:
+                logger.warning(f"Error on webhook send: {e}")
+                return
             if resp.status != 200:
                 logger.warning(f"Error on webhook send: {await resp.text()}")
 
@@ -323,25 +327,29 @@ class TaskService:
 
             create_schema = json.loads(schema)
 
-            if create_schema.get("task_type") == "image":
-                create_schema = TaskImageCreateSchema.model_validate(create_schema)
-                if image is not None:
-                    await self._send_img2img(task_id, create_schema, image)
+            try:
+                if create_schema.get("task_type") == "image":
+                    create_schema = TaskImageCreateSchema.model_validate(create_schema)
+                    if image is not None:
+                        await self._send_img2img(task_id, create_schema, image)
+                    else:
+                        await self._send_txt2img(task_id, create_schema)
+                elif create_schema.get("task_type") == "text":
+                    create_schema = TaskTextCreateSchema.model_validate(create_schema)
+                    await self._send_2txt(task_id, create_schema, image)
                 else:
-                    await self._send_txt2img(task_id, create_schema)
-            elif create_schema.get("task_type") == "text":
-                create_schema = TaskTextCreateSchema.model_validate(create_schema)
-                await self._send_2txt(task_id, create_schema, image)
-            else:
-                await self.task_repository.update(task_id, error="Unknown task type")
+                    await self.task_repository.update(task_id, error="Unknown task type")
+            except Exception as e:
+                await self.task_repository.update(task_id, error=str(e))
 
             await self.request_repository.delete(request_id)
             await self.task_repository._commit()
             if isinstance(create_schema, BaseModel) and create_schema.webhook_url is not None:
                 await self.send_webhook(task_id, create_schema.webhook_url)
-            elif isinstance(create_schema, dict) and create_schema.get("webhook_url") is not None:
+            elif isinstance(create_schema, dict) and create_schema.get("webhook_url"):
                 await self.send_webhook(task_id, create_schema.get("webhook_url"))
-            logger.info(f"Finished {task_id=}")
+
+        logger.info(f"Finished {task_id=}")
 
     async def add_request(
         self,
