@@ -108,7 +108,7 @@ class TaskImageCreateSchema(_TaskCreateSchema):
     ):
         user_inputs_validated = []
         try:
-            for inp in user_inputs:
+            for inp in (user_inputs or []):
                 if isinstance(inp, str):
                     inp = json.loads(inp)
                 if not isinstance(inp, list):
