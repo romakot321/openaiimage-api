@@ -65,6 +65,7 @@ EOF
 
 RUN <<EOF
 apt-get update --quiet
+apt-get install -y proxychains4
 rm -rf /var/lib/apt/lists/*
 EOF
 
@@ -74,8 +75,8 @@ ENV PATH=/app/bin:$PATH \
   PYTHONUNBUFFERED=1 \
   PYTHONPATH="$PYTHONPATH:/app"
 
-COPY docker-entrypoint.sh /
 
+COPY --chown=$user_id:$group_id proxychains.conf /etc/proxychains.conf
 COPY --link --chown=$user_id:$group_id --from=build /app/ /app
 COPY ./backend/alembic /app/alembic
 COPY ./backend/alembic.ini /app
@@ -84,4 +85,4 @@ RUN mkdir -p /app/storage && chown $user_id:$group_id -R /app/storage
 
 USER $user_id:$group_id
 WORKDIR /app
-CMD cd /app && rq worker -u redis://redis:6379
+CMD cd /app && proxychains4 rq worker -u redis://redis:6379

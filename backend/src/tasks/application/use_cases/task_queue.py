@@ -80,10 +80,12 @@ def on_text_task_finished(
         task_id: UUID = job.args[0]
         async with get_task_uow() as uow:
             task = await uow.tasks.get_by_pk(task_id)
+        print("TEXT TASK", task, task_id, task.context_id)
         if task.context_id:
             context_message = (
                 OpenAIGPTInputFromOpenAIResponseFactory().make_text_gpt_input(result)
             )
+            print(context_message)
             await _on_task_finished_append_context(
                 task.context_id, task.user_id, context_message
             )
@@ -123,7 +125,7 @@ async def enqueue_image2image_task(
         _run_task_image2image_openai,
         task_id,
         request,
-        on_success=rq.Callback(on_image_task_finished),
+        on_success=on_image_task_finished,
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)
@@ -155,7 +157,7 @@ async def enqueue_text2image_task(
         _run_task_text2image_openai,
         task_id,
         request,
-        on_success=rq.Callback(on_image_task_finished),
+        on_success=on_image_task_finished,
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)
@@ -181,7 +183,7 @@ async def enqueue_text2text_task(
         _run_task_text2text_openai,
         task_id,
         request,
-        on_success=rq.Callback(on_text_task_finished),
+        on_success=on_text_task_finished,
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)

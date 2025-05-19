@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: ./
-    container_name: openaiimageapi_app
+    container_name: openaiimage_refact_app
     depends_on:
       - db
       - redis
@@ -13,14 +13,14 @@ services:
       global_network:
       default:
     ports:
-      - "8081:80"
+      - "9998:80"
     volumes:
       - app_localstorage:/app/storage
       - ./logs/fastapi:/app/logs
 
   db:
     image: postgres:latest
-    container_name: openaiimageapi_db
+    container_name: openaiimage_refact_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./etc/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
@@ -31,8 +31,6 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "5432:5432"
     restart: always
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
@@ -40,14 +38,12 @@ services:
 
   redis:
     image: redis
-    container_name: openaiimageapi_redis
+    container_name: openaiimage_refact_redis
     restart: always
     env_file:
       - .env
     networks:
       default:
-    ports:
-      - "6379:6379"
 
   rqworker:
     build:
@@ -55,14 +51,14 @@ services:
       dockerfile: ./rq.Dockerfile
     env_file:
       - .env
-    container_name: openaiimageapi_rqworker
+    container_name: openaiimage_refact_rqworker
     restart: always
     networks:
       default:
 
 #  prometheus:
 #    image: prom/prometheus:v3.2.1
-#    container_name: openaiimageapi_prometheus
+#    container_name: openaiimage_refact_prometheus
 #    depends_on:
 #      - app
 #    volumes:
@@ -75,7 +71,7 @@ services:
 #
 #  postgres_exporter:
 #    image: prometheuscommunity/postgres-exporter:latest
-#    container_name: openaiimageapi_postgres_prometheus_exporter
+#    container_name: openaiimage_refact_postgres_prometheus_exporter
 #    depends_on:
 #      - db
 #    env_file:
@@ -86,7 +82,7 @@ services:
 #
 #  grafana:
 #    image: grafana/grafana:11.6.0
-#    container_name: openaiimageapi_grafana
+#    container_name: openaiimage_refact_grafana
 #    depends_on:
 #      - prometheus
 #    volumes:
