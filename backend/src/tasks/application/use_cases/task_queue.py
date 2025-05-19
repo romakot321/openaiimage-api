@@ -70,7 +70,7 @@ def on_image_task_finished(
             )
 
     loop = asyncio.get_event_loop()
-    loop.create_task(_async_task(job, connection, result, *args, **kwargs))
+    loop.run_until_complete(_async_task(job, connection, result, *args, **kwargs))
 
 
 def on_text_task_finished(
@@ -91,7 +91,7 @@ def on_text_task_finished(
             )
 
     loop = asyncio.get_event_loop()
-    loop.create_task(_async_task(job, connection, result, *args, **kwargs))
+    loop.run_until_complete(_async_task(job, connection, result, *args, **kwargs))
 
 
 async def send_task_webhook(task_id: UUID, webhook_url: str):
@@ -125,7 +125,7 @@ async def enqueue_image2image_task(
         _run_task_image2image_openai,
         task_id,
         request,
-        on_success=on_image_task_finished,
+        #on_success=on_image_task_finished,
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)
@@ -157,7 +157,7 @@ async def enqueue_text2image_task(
         _run_task_text2image_openai,
         task_id,
         request,
-        on_success=on_image_task_finished,
+        #on_success=on_image_task_finished,
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)
@@ -183,7 +183,7 @@ async def enqueue_text2text_task(
         _run_task_text2text_openai,
         task_id,
         request,
-        on_success=on_text_task_finished,
+        #on_success=on_text_task_finished,
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)

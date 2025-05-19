@@ -30,7 +30,7 @@ class OpenAIGPTInputTextContent(OpenAIGPTInputContent):
 
 class OpenAIGPTInput(BaseModel):
     role: Literal["assistant", "system", "user", "developer"]
-    content: list[OpenAIGPTInputTextContent | OpenAIGPTInputImageContent]
+    content: list[OpenAIGPTInputTextContent | OpenAIGPTInputImageContent] | str
 
 
 class OpenAIGPT4Request(BaseModel):

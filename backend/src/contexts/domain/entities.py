@@ -22,6 +22,8 @@ class ContextEntity(BaseModel):
     role: ContextEntityRole
     context_id: UUID
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class ContextTask(BaseModel):
     id: UUID

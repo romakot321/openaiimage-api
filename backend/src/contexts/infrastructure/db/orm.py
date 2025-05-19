@@ -1,6 +1,6 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.contexts.domain.entities import ContextEntityContentType
+from src.contexts.domain.entities import ContextEntityContentType, ContextEntityRole
 from src.db.base import Base, BaseMixin
 
 
@@ -17,7 +17,7 @@ class ContextEntityDB(BaseMixin, Base):
 
     content_type: Mapped[ContextEntityContentType] = mapped_column(doc="text, image")
     content: Mapped[str] = mapped_column(doc="Prompt or image filename from storage")
-    role: Mapped[str]
+    role: Mapped[ContextEntityRole]
     context_id: Mapped[str] = mapped_column(ForeignKey("contexts.id", ondelete="CASCADE"))
 
     context: Mapped['ContextDB'] = relationship(back_populates="entities", lazy="noload")

@@ -4,7 +4,7 @@ from sqladmin import Admin
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.core.config import settings
-import src.core.logging_setup
+#import src.core.logging_setup
 
 from src.db.engine import engine
 from src.tasks.presentation.admin import TaskAdmin
