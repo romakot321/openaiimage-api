@@ -1,4 +1,3 @@
-from uuid import UUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from fastapi_storages.integrations.sqlalchemy import ImageType

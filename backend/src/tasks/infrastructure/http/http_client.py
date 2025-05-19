@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from socket import AF_INET
 

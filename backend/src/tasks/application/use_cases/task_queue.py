@@ -1,5 +1,4 @@
 import asyncio
-from typing import Coroutine
 from uuid import UUID
 import io
 

@@ -6,7 +6,6 @@ from src.contexts.domain.entities import ContextEntity, ContextEntityContentType
 from src.integration.infrastructure.external_api.openai.schemas.requests import (
     OpenAIGPTInput,
     OpenAIGPTInputImageContent,
-    OpenAIGPTInputTextContent,
 )
 
 
@@ -71,7 +70,7 @@ class OpenAIGPTInputToContextEntityMapper:
         return ContextEntity(
             id=context_id,
             content_type=ContextEntityContentType.image,
-            content=gpt_input.content[0].text,
+            content=gpt_input.content if isinstance(gpt_input.content, str) else gpt_input.content[-1].text,
             role=ContextEntityRole(gpt_input.role),
             context_id=context_id
         )

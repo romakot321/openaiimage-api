@@ -8,7 +8,6 @@ from src.integration.infrastructure.external_api.openai.schemas.requests import 
     OpenAIGPTInputTextContent,
 )
 from src.integration.infrastructure.external_api.openai.schemas.responses import OpenAIResponse
-from src.models.domain.dtos import ModelReadDTO
 from src.models.domain.entities import Model
 from src.tasks.domain.dtos import TaskCreateImageDTO, TaskCreateTextDTO
 
@@ -25,6 +24,23 @@ class OpenAIGPTInputFromOpenAIResponseFactory:
             role="assistant",
             content=[OpenAIGPTInputTextContent(text=response.content)]
         )
+
+
+class OpenAIGPTInputFromOpenAIRequestFactory:
+    def make_image_gpt_input(self, request: OpenAIGPTImage1Request) -> OpenAIGPTInput:
+        return OpenAIGPTInput(
+            role="assistant",
+            content=[OpenAIGPTInputImageContent(image_url=self._encode_image(image)) for image in (request.image or [])]
+        )
+
+    def make_text_gpt_input(self, request: OpenAIGPT4Request) -> OpenAIGPTInput:
+        return OpenAIGPTInput(
+            role="assistant",
+            content=[OpenAIGPTInputTextContent(text=inp.content) for inp in request.input if isinstance(inp.content, str)]
+        )
+
+    def _encode_image(self, image: io.BytesIO) -> str:
+        return base64.b64encode(image.getvalue()).decode()
 
 
 class OpenAIRequestFromDTOFactory:

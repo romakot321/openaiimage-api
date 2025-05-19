@@ -91,7 +91,7 @@ class ContextTaskAdapter(ITaskContextSource[OpenAIGPTInput]):
     async def append_task_context(
         self,
         context_id: UUID | str,
-        message: OpenAIGPTInput,
+        messages: list[OpenAIGPTInput],
         user_id: str | None = None,
     ) -> None:
         context_left = await self.get_task_context_left(context_id, user_id)
@@ -101,9 +101,10 @@ class ContextTaskAdapter(ITaskContextSource[OpenAIGPTInput]):
                 1 * int(context_left["text_left"] <= 0),
                 1 * int(context_left["images_left"]),
             )
-        context_entity = OpenAIGPTInputToContextEntityMapper().map_one(
-            message, context_left["context_id"]
-        )
-        request = ContextEntityCreate(**context_entity.model_dump())
-        await self.context_uow.context_entity.create(request)
+        for message in messages:
+            context_entity = OpenAIGPTInputToContextEntityMapper().map_one(
+                message, context_left["context_id"]
+            )
+            request = ContextEntityCreate(**context_entity.model_dump())
+            await self.context_uow.context_entity.create(request)
         await self.context_uow.commit()
