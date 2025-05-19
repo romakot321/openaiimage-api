@@ -1,10 +1,10 @@
 from typing import Annotated, AsyncGenerator
 
 from fastapi import Depends
-from backend.src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
-from backend.src.contexts.infrastructure.db.adapter import ContextTaskAdapter
-from backend.src.contexts.infrastructure.db.unit_of_work import PGContextUnitOfWork
-from backend.src.tasks.domain.interfaces.task_context_source import ITaskContextSource
+from src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
+from src.contexts.infrastructure.db.adapter import ContextTaskAdapter
+from src.contexts.infrastructure.db.unit_of_work import PGContextUnitOfWork
+from src.tasks.domain.interfaces.task_context_source import ITaskContextSource
 
 
 def get_context_uow() -> IContextUnitOfWork:

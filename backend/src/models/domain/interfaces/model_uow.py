@@ -1,6 +1,6 @@
 import abc
 
-from backend.src.models.domain.interfaces.model_repository import IModelRepository
+from src.models.domain.interfaces.model_repository import IModelRepository
 
 
 class IModelUnitOfWork(abc.ABC):

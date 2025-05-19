@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.src.models.domain.interfaces.model_uow import IModelUnitOfWork
+from src.models.domain.interfaces.model_uow import IModelUnitOfWork
 
-from backend.src.models.infrastructure.db.repositories import PGModelRepository
+from src.models.infrastructure.db.repositories import PGModelRepository
 from src.db.engine import async_session_maker
 
 

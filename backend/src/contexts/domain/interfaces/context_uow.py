@@ -1,7 +1,7 @@
 import abc
 
-from backend.src.contexts.domain.interfaces.context_entity_repository import IContextEntityRepository
-from backend.src.contexts.domain.interfaces.context_repository import IContextRepository
+from src.contexts.domain.interfaces.context_entity_repository import IContextEntityRepository
+from src.contexts.domain.interfaces.context_repository import IContextRepository
 
 
 class IContextUnitOfWork(abc.ABC):

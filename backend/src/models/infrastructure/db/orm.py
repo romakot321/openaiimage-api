@@ -1,7 +1,8 @@
-from sqlalchemy import ForeignKey, LargeBinary
+from uuid import UUID
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from fastapi_storages.integrations.sqlalchemy import ImageType
-from backend.src.db.base import Base, BaseMixin
+from src.db.base import Base, BaseMixin
 from src.core.filesystem_storage import storage
 
 
@@ -14,7 +15,7 @@ class ModelDB(BaseMixin, Base):
     for_image: Mapped[bool]
     for_video: Mapped[bool]
     image: Mapped[ImageType | None] = mapped_column(type_=ImageType(storage=storage), nullable=True)
-    category_name: Mapped[str | None] = mapped_column(ForeignKey("model_categories.name", ondelete="CASCADE"))
+    category_name: Mapped[str | None] = mapped_column(ForeignKey("prompt_categories.name", ondelete="CASCADE"))
 
     user_inputs: Mapped[list['ModelUserInputDB']] = relationship(back_populates="model", lazy="selectin")
     category: Mapped['ModelCategoryDB'] = relationship(back_populates="models", lazy="noload")
@@ -27,7 +28,7 @@ class ModelUserInputDB(Base):
     __tablename__ = "prompt_userinputs"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
-    model_id: Mapped[int] = mapped_column(ForeignKey("models.id", ondelete="CASCADE"))
+    prompt_id: Mapped[int] = mapped_column(ForeignKey("prompts.id", ondelete="CASCADE"))
     key: Mapped[str]
     description: Mapped[str]
 

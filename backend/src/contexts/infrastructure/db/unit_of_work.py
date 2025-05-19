@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.tasks.domain.interfaces.task_uow import IContextUnitOfWork
+from src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
 
 from src.db.engine import async_session_maker
 from src.contexts.infrastructure.db.repositories import PGContextEntityRepository, PGContextRepository

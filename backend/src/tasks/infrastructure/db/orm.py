@@ -24,7 +24,7 @@ class TaskDB(BaseMixin, Base):
     user_id: Mapped[str]
     app_bundle: Mapped[str]
 
-    items: Mapped[list['TaskItem']] = relationship(back_populates='task', lazy='selectin', cascade="all,delete")
-    images: Mapped[list['TaskImage']] = relationship(back_populates="task", lazy='selectin', cascade="all,delete")
-    context: Mapped['Context'] = relationship(back_populates="tasks", lazy="noload")
+    items: Mapped[list['TaskItemDB']] = relationship(back_populates='task', lazy='joined', cascade="all,delete")
+    #images: Mapped[list['TaskImage']] = relationship(back_populates="task", lazy='selectin', cascade="all,delete")
+    context: Mapped['ContextDB'] = relationship(back_populates="tasks", lazy="noload")
 

@@ -4,7 +4,7 @@ from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.src.tasks.domain.interfaces.task_item_repository import ITaskItemRepository
+from src.tasks.domain.interfaces.task_item_repository import ITaskItemRepository
 from src.tasks.infrastructure.db.orm import TaskDB, TaskItemDB
 from src.tasks.domain.entities import Task, TaskCreate, TaskItem, TaskItemCreate, TaskUpdate
 from src.tasks.domain.interfaces.task_repository import ITaskRepository
@@ -28,7 +28,14 @@ class PGTaskRepository(ITaskRepository):
                 detail = "Task can't be created due to integrity error."
             raise HTTPException(409, detail=detail)
 
-        return self._to_domain(model)
+        return Task(
+            id=model.id,
+            user_id=model.user_id,
+            app_bundle=model.app_bundle,
+            context_id=model.context_id,
+            error=model.error,
+            items=[]
+        )
 
     async def get_by_pk(self, pk: UUID) -> Task:
         model: TaskDB | None = await self.session.get(TaskDB, pk)
@@ -54,6 +61,7 @@ class PGTaskRepository(ITaskRepository):
             id=model.id,
             user_id=model.user_id,
             app_bundle=model.app_bundle,
+            context_id=model.context_id,
             error=model.error,
             items=model.items
         )

@@ -1,9 +1,9 @@
 from uuid import UUID
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 
-from backend.src.models.domain.dtos import ModelListParamsDTO, ModelReadDTO
-from backend.src.models.presentation.dependencies import ModelUoWDepend
+from src.models.domain.dtos import ModelListParamsDTO, ModelReadDTO
+from src.models.presentation.dependencies import ModelUoWDepend
 from src.models.application.use_cases.model_get import get_models_list
 from src.models.application.use_cases.model_image import get_model_image as uc_get_model_image
 
@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("", response_model=list[ModelReadDTO])
-async def list_models(params: ModelListParamsDTO, uow: ModelUoWDepend):
+async def list_models(uow: ModelUoWDepend, params: ModelListParamsDTO = Depends()):
     return await get_models_list(params, uow)
 
 

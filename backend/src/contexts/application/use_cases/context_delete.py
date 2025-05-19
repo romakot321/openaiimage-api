@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from backend.src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
+from src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
 
 
 async def delete_context(context_id: UUID, uow: IContextUnitOfWork):

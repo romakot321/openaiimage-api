@@ -1,6 +1,6 @@
 import abc
 
-from backend.src.tasks.domain.interfaces.task_item_repository import ITaskItemRepository
+from src.tasks.domain.interfaces.task_item_repository import ITaskItemRepository
 from src.tasks.domain.interfaces.task_repository import ITaskRepository
 
 

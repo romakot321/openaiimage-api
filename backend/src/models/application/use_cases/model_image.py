@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import HTTPException
 
-from backend.src.models.domain.interfaces.model_uow import IModelUnitOfWork
+from src.models.domain.interfaces.model_uow import IModelUnitOfWork
 
 
 async def get_model_image(model_id: UUID, uow: IModelUnitOfWork) -> BytesIO:

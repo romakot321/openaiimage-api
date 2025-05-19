@@ -1,5 +1,5 @@
 from uuid import UUID
-from openai import BaseModel
+from pydantic import BaseModel
 
 
 class ModelListParamsDTO(BaseModel):

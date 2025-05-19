@@ -1,10 +1,11 @@
+from typing import Literal
 from uuid import UUID
 import json
 from fastapi import Form
-from pydantic import BaseModel, ValidationError, field_validator
+from pydantic import BaseModel, field_validator
 from pydantic_core import PydanticCustomError
 
-from backend.src.tasks.domain.entities import TaskResultQuality, TaskResultSize
+from src.tasks.domain.entities import TaskResultQuality, TaskResultSize
 
 
 class TaskUserInputDTO(BaseModel):
@@ -16,7 +17,7 @@ class TaskCreateTextDTO(BaseModel):
     prompt: str
     user_id: str
     app_bundle: str
-    context_id: UUID | None = None
+    context_id: UUID | Literal['last'] | None = None
     webhook_url: str | None = None
 
 
@@ -28,7 +29,7 @@ class TaskCreateImageDTO(BaseModel):
     user_inputs: list[TaskUserInputDTO] | None = None
     user_prompt: str | None = None
     model_id: UUID | None = None
-    context_id: UUID | str | None = None
+    context_id: UUID | Literal['last'] | None = None
     webhook_url: str | None = None
 
     @field_validator("context_id", mode="before")
@@ -52,7 +53,7 @@ class TaskCreateImageDTO(BaseModel):
         cls,
         user_prompt: str | None = Form(None),
         webhook_url: str | None = Form(None),
-        context_id: UUID | str | None = Form(None),
+        context_id: UUID | Literal['last'] | None = Form(None),
         user_inputs: list[str] | None = Form(None),
         model_id: UUID | None = Form(None),
         quality: TaskResultQuality = Form(TaskResultQuality.auto),

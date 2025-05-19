@@ -2,8 +2,8 @@ from uuid import UUID
 from fastapi_storages import FileSystemStorage
 import base64
 
-from backend.src.contexts.domain.entities import ContextEntity, ContextEntityContentType, ContextEntityRole
-from backend.src.integration.infrastructure.external_api.openai.schemas.requests import (
+from src.contexts.domain.entities import ContextEntity, ContextEntityContentType, ContextEntityRole
+from src.integration.infrastructure.external_api.openai.schemas.requests import (
     OpenAIGPTInput,
     OpenAIGPTInputImageContent,
     OpenAIGPTInputTextContent,

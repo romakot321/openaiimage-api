@@ -1,8 +1,8 @@
 import abc
 from uuid import UUID
 
-from backend.src.contexts.domain.dtos import ContextUsageDTO
-from src.contexts.domain.entities import Context, ContextEntity, ContextEntityCreate
+from src.contexts.domain.dtos import ContextUsageDTO
+from src.contexts.domain.entities import ContextEntity, ContextEntityCreate
 
 
 class IContextEntityRepository(abc.ABC):

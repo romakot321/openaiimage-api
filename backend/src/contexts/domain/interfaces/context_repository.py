@@ -13,3 +13,6 @@ class IContextRepository(abc.ABC):
 
     @abc.abstractmethod
     async def delete_by_pk(self, pk: UUID) -> None: ...
+
+    @abc.abstractmethod
+    async def get_user_last(self, user_id: str) -> Context: ...

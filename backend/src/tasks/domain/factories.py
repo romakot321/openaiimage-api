@@ -1,31 +1,49 @@
 import base64
 import io
-from backend.src.integration.infrastructure.external_api.openai.schemas.requests import (
+from src.integration.infrastructure.external_api.openai.schemas.requests import (
     OpenAIGPT4Request,
     OpenAIGPTImage1Request,
     OpenAIGPTInput,
     OpenAIGPTInputImageContent,
     OpenAIGPTInputTextContent,
 )
-from backend.src.tasks.domain.dtos import TaskCreateImageDTO, TaskCreateTextDTO
+from src.integration.infrastructure.external_api.openai.schemas.responses import OpenAIResponse
+from src.models.domain.dtos import ModelReadDTO
+from src.models.domain.entities import Model
+from src.tasks.domain.dtos import TaskCreateImageDTO, TaskCreateTextDTO
 
 
-class OpenAIRequestFactory:
+class OpenAIGPTInputFromOpenAIResponseFactory:
+    def make_image_gpt_input(self, response: OpenAIResponse) -> OpenAIGPTInput:
+        return OpenAIGPTInput(
+            role="assistant",
+            content=[OpenAIGPTInputImageContent(image_url=response.content)]
+        )
+
+    def make_text_gpt_input(self, response: OpenAIResponse) -> OpenAIGPTInput:
+        return OpenAIGPTInput(
+            role="assistant",
+            content=[OpenAIGPTInputTextContent(text=response.content)]
+        )
+
+
+class OpenAIRequestFromDTOFactory:
     def make_gpt_image_1_request(
         self,
         dto: TaskCreateImageDTO,
         images: list[io.BytesIO] | None = None,
         context: list[OpenAIGPTInput] | None = None,
+        model: Model | None = None
     ) -> OpenAIGPTImage1Request:
         return OpenAIGPTImage1Request(
-            prompt=self._build_prompt(dto, context),
+            prompt=self._build_prompt(dto, context, model),
             size=dto.size.value,
             quality=dto.quality.value,
             image=self._build_images(images, context),
         )
 
     def make_gpt_4_request(
-        self, dto: TaskCreateTextDTO, context: list[OpenAIGPTInput] | None = None
+            self, dto: TaskCreateTextDTO, context: list[OpenAIGPTInput] | None = None
     ) -> OpenAIGPT4Request:
         return OpenAIGPT4Request(
             input=(context or [])
@@ -54,7 +72,7 @@ class OpenAIRequestFactory:
         return images
 
     def _build_prompt(
-        self, dto: TaskCreateImageDTO, context: list[OpenAIGPTInput] | None = None
+            self, dto: TaskCreateImageDTO, context: list[OpenAIGPTInput] | None = None, model: Model | None = None
     ) -> str:
         prompt = ""
         for gpt_input in context or []:
@@ -63,6 +81,12 @@ class OpenAIRequestFactory:
             ):
                 continue
             prompt += f"{gpt_input.role}: {gpt_input.content[0].text}\n"
+        if model is not None:
+            model_text = model.text
+            for inp in (dto.user_inputs or []):
+                if inp.key in model_text:
+                    model_text.format(**{inp.key: inp.value})
+            prompt += model_text + "\n"
         if dto.user_prompt:
             prompt += dto.user_prompt
         return prompt

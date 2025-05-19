@@ -1,6 +1,7 @@
 from enum import Enum
 from uuid import UUID
 from openai import BaseModel
+from pydantic import ConfigDict
 
 
 class ContextEntityContentType(str, Enum):
@@ -21,10 +22,17 @@ class ContextEntity(BaseModel):
     context_id: UUID
 
 
+class ContextTask(BaseModel):
+    id: UUID
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class Context(BaseModel):
     id: UUID
     user_id: str
     entities: list[ContextEntity]
+    tasks: list[ContextTask]
 
 
 class ContextCreate(BaseModel):

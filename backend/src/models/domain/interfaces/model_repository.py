@@ -1,7 +1,7 @@
 import abc
 from uuid import UUID
 
-from backend.src.models.domain.entities import Model, ModelList
+from src.models.domain.entities import Model, ModelList
 
 
 class IModelRepository(abc.ABC):

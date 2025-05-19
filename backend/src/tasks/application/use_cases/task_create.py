@@ -1,5 +1,5 @@
-from backend.src.tasks.domain.dtos import TaskCreateImageDTO, TaskCreateTextDTO
-from backend.src.tasks.domain.interfaces.task_uow import ITaskUnitOfWork
+from src.tasks.domain.dtos import TaskCreateImageDTO, TaskCreateTextDTO
+from src.tasks.domain.interfaces.task_uow import ITaskUnitOfWork
 from src.tasks.domain.entities import Task, TaskCreate
 
 

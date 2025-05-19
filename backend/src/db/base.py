@@ -18,6 +18,6 @@ class Base(DeclarativeBase):
 
 class BaseMixin:
     id: Mapped[UUID] = mapped_column(server_default=text("gen_random_uuid()"), primary_key=True, index=True)
-    created_at: Mapped[dt.datetime] = mapped_column(server_default=text("(now() at time zone 'utc')"), default=dt.datetime.now)
-    updated_at: Mapped[dt.datetime | None] = mapped_column(nullable=True, onupdate=text("(now() at time zone 'utc')"))
+    created_at: Mapped[dt.datetime] = mapped_column(server_default=text("now()"), default=dt.datetime.now)
+    updated_at: Mapped[dt.datetime | None] = mapped_column(nullable=True, onupdate=text("now()"))
 

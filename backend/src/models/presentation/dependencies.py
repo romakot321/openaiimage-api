@@ -2,8 +2,8 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from backend.src.models.domain.interfaces.model_uow import IModelUnitOfWork
-from backend.src.models.infrastructure.db.unit_of_work import PGModelUnitOfWork
+from src.models.domain.interfaces.model_uow import IModelUnitOfWork
+from src.models.infrastructure.db.unit_of_work import PGModelUnitOfWork
 
 
 def get_model_uow() -> IModelUnitOfWork:

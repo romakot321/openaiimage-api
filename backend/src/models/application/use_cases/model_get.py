@@ -1,7 +1,7 @@
 from uuid import UUID
-from backend.src.models.domain.dtos import ModelListParamsDTO
-from backend.src.models.domain.entities import Model, ModelList
-from backend.src.models.domain.interfaces.model_uow import IModelUnitOfWork
+from src.models.domain.dtos import ModelListParamsDTO
+from src.models.domain.entities import Model, ModelList
+from src.models.domain.interfaces.model_uow import IModelUnitOfWork
 
 
 async def get_models_list(

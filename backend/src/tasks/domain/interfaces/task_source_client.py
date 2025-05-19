@@ -1,6 +1,5 @@
 import abc
-import io
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 
 TRequestForImage = TypeVar("TRequestForImage")

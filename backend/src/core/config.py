@@ -7,6 +7,8 @@ import os
 class Settings(BaseSettings):
     OPENAI_API_KEY: str
     LOCAL_STORAGE_PATH: str = "storage"
+    ENVIRONMENT: Literal['test', 'prod'] = 'prod'
+    DOMAIN: str
 
     PROJECT_NAME: str = os.environ.get("PROJECT_NAME", "UNNAMED PROJECT")
     API_V1_STR: str = "/api/v1"
@@ -22,8 +24,8 @@ class Settings(BaseSettings):
     DATABASE_URI: str | None = None
     ALEMBIC_DATABASE_URI: str | None = None
 
-    CONTEXT_MAX_SYMBOLS = 30000
-    CONTEXT_MAX_IMAGES = 16
+    CONTEXT_MAX_SYMBOLS: int = 30000
+    CONTEXT_MAX_IMAGES: int = 16
 
     @staticmethod
     def _build_dsn(scheme: str, values: dict) -> str:
@@ -45,7 +47,9 @@ class Settings(BaseSettings):
         elif isinstance(v, AnyUrl):
             return str(v)
         db_type = info.data.get("DB_TYPE")
-        if db_type == "POSTGRESQL":
+        if db_type == "ASYNC_SQLITE":
+            return "sqlite+aiosqlite:///:memory:"
+        elif db_type == "POSTGRESQL":
             return cls._build_dsn("postgresql+psycopg", info.data)
         elif db_type == "ASYNC_POSTGRESQL":
             return cls._build_dsn("postgresql+asyncpg", info.data)

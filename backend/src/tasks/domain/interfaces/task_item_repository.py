@@ -1,5 +1,4 @@
 import abc
-from uuid import UUID
 
 from src.tasks.domain.entities import TaskItem, TaskItemCreate
 

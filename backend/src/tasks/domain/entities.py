@@ -1,6 +1,6 @@
 from enum import Enum
-from pydantic import BaseModel
-from sqlalchemy import UUID
+from pydantic import BaseModel, ConfigDict
+from uuid import UUID
 
 
 class TaskSource(Enum):
@@ -24,11 +24,14 @@ class TaskItem(BaseModel):
     id: int
     result_url: str
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class Task(BaseModel):
     id: UUID
     user_id: str
     app_bundle: str
+    context_id: UUID | None = None
     error: str | None = None
     items: list[TaskItem]
 
@@ -46,6 +49,7 @@ class TaskItemCreate(BaseModel):
 class TaskCreate(BaseModel):
     user_id: str
     app_bundle: str
+    context_id: UUID | None = None
 
 
 class TaskUpdate(BaseModel):

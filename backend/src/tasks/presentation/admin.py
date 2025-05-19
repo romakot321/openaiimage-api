@@ -1,6 +1,6 @@
 from sqladmin import ModelView
 
-from backend.src.tasks.infrastructure.db.orm import TaskDB
+from src.tasks.infrastructure.db.orm import TaskDB
 
 
 class TaskAdmin(ModelView, model=TaskDB):

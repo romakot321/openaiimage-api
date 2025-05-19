@@ -1,6 +1,6 @@
-from backend.src.contexts.domain.dtos import ContextCreateDTO, ContextReadDTO
-from backend.src.contexts.domain.entities import Context, ContextCreate
-from backend.src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
+from src.contexts.domain.dtos import ContextCreateDTO, ContextReadDTO
+from src.contexts.domain.entities import ContextCreate
+from src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
 from src.core.config import settings
 
 

@@ -1,8 +1,7 @@
 from io import BytesIO
 from uuid import UUID
 from fastapi import HTTPException
-from sqlalchemy import select, update
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -20,13 +19,12 @@ class PGModelRepository(IModelRepository):
         query = select(ModelDB).offset(params.page * params.count).limit(params.count)
         query = query.options(selectinload(ModelDB.user_inputs))
         result = await self.session.scalars(query)
-        return [
-            self._to_domain(model)
-            for model in result
-        ]
+        return [self._to_domain(model) for model in result]
 
     async def get_by_pk(self, pk: UUID) -> Model:
-        model: ModelDB | None = await self.session.get(ModelDB, pk)
+        model: ModelDB | None = await self.session.get(
+            ModelDB, pk, options=[selectinload(ModelDB.user_inputs)]
+        )
         if model is None:
             raise HTTPException(404)
         return self._to_domain(model)
@@ -37,6 +35,7 @@ class PGModelRepository(IModelRepository):
             id=model.id,
             text=model.text,
             title=model.title,
+            user_inputs=model.user_inputs,
             category_name=model.category_name,
-            image=BytesIO(model.image.open().read()) if model.image else None
+            image=BytesIO(model.image.open().read()) if model.image else None,
         )

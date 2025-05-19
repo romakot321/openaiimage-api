@@ -1,8 +1,8 @@
 from uuid import UUID
 
 from src.core.config import settings
-from backend.src.contexts.domain.dtos import ContextReadDTO
-from backend.src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
+from src.contexts.domain.dtos import ContextReadDTO
+from src.contexts.domain.interfaces.context_uow import IContextUnitOfWork
 
 
 async def get_context(context_id: UUID, uow: IContextUnitOfWork) -> ContextReadDTO:
@@ -12,6 +12,7 @@ async def get_context(context_id: UUID, uow: IContextUnitOfWork) -> ContextReadD
     return ContextReadDTO(
         id=context_id,
         user_id=context.user_id,
+        tasks=context.tasks,
         text_available=settings.CONTEXT_MAX_SYMBOLS - usage.text_used,
         images_available=settings.CONTEXT_MAX_IMAGES - usage.images_used
     )
