@@ -1,13 +1,14 @@
 from uuid import UUID
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from src.contexts.application.use_cases.context_create import create_context
 from src.contexts.application.use_cases.context_get import get_context as uc_get_context
 from src.contexts.application.use_cases.context_delete import delete_context as uc_delete_context
 from src.contexts.domain.dtos import ContextCreateDTO, ContextReadDTO
 from src.contexts.presentation.dependencies import ContextUoWDepend
+from src.core.auth import validate_api_token
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(validate_api_token)])
 
 
 @router.post("", response_model=ContextReadDTO)

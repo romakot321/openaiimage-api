@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     LOCAL_STORAGE_PATH: str = "storage"
     ENVIRONMENT: Literal['test', 'prod'] = 'prod'
     DOMAIN: str
+    API_TOKEN: str = "123"
 
     PROJECT_NAME: str = os.environ.get("PROJECT_NAME", "UNNAMED PROJECT")
-    API_V1_STR: str = "/api/v1"
 
     REDIS_HOST: str
 
@@ -39,6 +39,12 @@ class Settings(BaseSettings):
                 path=values.get("DB_NAME"),
             )
         )
+
+    @field_validator("API_TOKEN")
+    def validate_api_token(cls, v: str, info: ValidationInfo) -> str:
+        if v == "123" and info.data.get("ENVIRONMENT") == "prod":
+            raise ValueError("Define not default api_token env")
+        return v
 
     @field_validator("DATABASE_URI")
     def assemble_db_connection(cls, v: str | None, info: ValidationInfo) -> str:

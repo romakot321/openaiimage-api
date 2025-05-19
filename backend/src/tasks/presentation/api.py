@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, File, UploadFile
 from fastapi.responses import Response
 
+from src.core.auth import validate_api_token
 from src.models.presentation.dependencies import ModelUoWDepend
 from src.tasks.application.use_cases.task_status import get_task
 from src.tasks.application.use_cases.task_result import get_task_image_result
@@ -19,7 +20,7 @@ from src.tasks.presentation.dependencies import (
     TaskUoWDepend,
 )
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(validate_api_token)])
 
 
 @router.post("/image", response_model=TaskReadDTO)
