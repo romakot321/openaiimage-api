@@ -56,7 +56,6 @@ services:
     env_file:
       - .env
     container_name: openaiimageapi_rqworker
-    command: rq worker -u redis://redis:6379
     restart: always
     networks:
       default:

@@ -14,3 +14,6 @@ class IContextEntityRepository(abc.ABC):
 
     @abc.abstractmethod
     async def get_context_usage(self, context_id: UUID) -> ContextUsageDTO: ...
+
+    @abc.abstractmethod
+    async def delete_by_pk(self, pk: UUID) -> None: ...

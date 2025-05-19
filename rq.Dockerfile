@@ -84,4 +84,4 @@ RUN mkdir -p /app/storage && chown $user_id:$group_id -R /app/storage
 
 USER $user_id:$group_id
 WORKDIR /app
-CMD ["rq", "worker"]
+CMD cd /app && rq worker -u redis://redis:6379

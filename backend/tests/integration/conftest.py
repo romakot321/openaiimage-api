@@ -31,5 +31,4 @@ def context_factory():
 
 @pytest.fixture
 def fake_task_source() -> ITaskSourceClient:
-    print("FAKETASKSOURCE")
     return FakeTaskSourceClient()

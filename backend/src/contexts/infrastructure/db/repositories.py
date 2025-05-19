@@ -10,6 +10,7 @@ from src.contexts.domain.entities import (
     ContextEntity,
     ContextEntityContentType,
     ContextEntityCreate,
+    ContextEntityRole,
 )
 from src.contexts.domain.interfaces.context_entity_repository import (
     IContextEntityRepository,
@@ -42,7 +43,9 @@ class PGContextRepository(IContextRepository):
 
     async def get_by_pk(self, pk: UUID) -> Context:
         model: ContextDB | None = await self.session.get(
-            ContextDB, pk, options=[selectinload(ContextDB.entities), selectinload(ContextDB.tasks)]
+            ContextDB,
+            pk,
+            options=[selectinload(ContextDB.entities), selectinload(ContextDB.tasks)],
         )
         if model is None:
             raise HTTPException(404)
@@ -66,7 +69,12 @@ class PGContextRepository(IContextRepository):
 
     @staticmethod
     def _to_domain(model: ContextDB) -> Context:
-        return Context(id=model.id, user_id=model.user_id, entities=model.entities, tasks=model.tasks)
+        return Context(
+            id=model.id,
+            user_id=model.user_id,
+            entities=model.entities,
+            tasks=model.tasks,
+        )
 
 
 class PGContextEntityRepository(IContextEntityRepository):
@@ -91,11 +99,26 @@ class PGContextEntityRepository(IContextEntityRepository):
 
     async def get_list_by_context_id(self, context_id: UUID) -> list[ContextEntity]:
         query = select(ContextEntityDB).filter_by(context_id=context_id)
+        query = query.order_by(ContextEntityDB.created_at.desc())
         result = await self.session.scalars(query)
         return [self._to_domain(model) for model in result]
 
+    async def delete_by_pk(self, pk: UUID) -> None:
+        query = delete(ContextEntityDB).filter_by(id=pk)
+        await self.session.execute(query)
+
+        try:
+            await self.session.flush()
+        except IntegrityError as e:
+            try:
+                detail = "Context can't be deleted. " + str(e)
+            except IndexError:
+                detail = "Context can't be deleted due to integrity error."
+            raise HTTPException(409, detail=detail)
+
     async def get_context_usage(self, context_id: UUID) -> ContextUsageDTO:
         return ContextUsageDTO(
+            id=context_id,
             text_used=await self._get_context_text_usage(context_id) or 0,
             images_used=await self._get_context_images_usage(context_id) or 0,
         )
@@ -123,5 +146,11 @@ class PGContextEntityRepository(IContextEntityRepository):
             return context_text_usage._tuple()[0]
 
     @staticmethod
-    def _to_domain(model: ContextDB) -> Context:
-        return Context(id=model.id, user_id=model.user_id)
+    def _to_domain(model: ContextEntityDB) -> ContextEntity:
+        return ContextEntity(
+            id=model.id,
+            content_type=model.content_type,
+            content=model.content,
+            role=ContextEntityRole(model.role),
+            context_id=UUID(model.context_id),
+        )

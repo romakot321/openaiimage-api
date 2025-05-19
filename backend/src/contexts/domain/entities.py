@@ -16,6 +16,7 @@ class ContextEntityRole(str, Enum):
 
 
 class ContextEntity(BaseModel):
+    id: UUID
     content_type: ContextEntityContentType
     content: str
     role: ContextEntityRole
