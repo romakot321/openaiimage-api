@@ -79,12 +79,10 @@ def on_text_task_finished(
         task_id: UUID = job.args[0]
         async with get_task_uow() as uow:
             task = await uow.tasks.get_by_pk(task_id)
-        print("TEXT TASK", task, task_id, task.context_id)
         if task.context_id:
             context_message = (
                 OpenAIGPTInputFromOpenAIResponseFactory().make_text_gpt_input(result)
             )
-            print(context_message)
             await _on_task_finished_append_context(
                 task.context_id, task.user_id, context_message
             )

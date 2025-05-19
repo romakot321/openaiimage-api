@@ -49,13 +49,14 @@ class OpenAIGPTInputToContextEntityMapper:
     def map_one(self, gpt_input: OpenAIGPTInput, context_id: UUID) -> ContextEntity:
         if not gpt_input.content:
             raise ValueError("Failed to map OpenAIGPTInput: Empty content")
+        print("map OpenAIGPTInput", gpt_input)
 
-        if hasattr(gpt_input.content[0], "image_url"):
-            return self._map_image_input(gpt_input, context_id)
-        elif hasattr(gpt_input.content[0], "text"):
+        if isinstance(gpt_input.content, str) or hasattr(gpt_input.content[-1], "text"):
             return self._map_text_input(gpt_input, context_id)
+        elif hasattr(gpt_input.content[0], "image_url"):
+            return self._map_image_input(gpt_input, context_id)
 
-        raise TypeError(f"Failed to map OpenAIGPTInput: Unknown content {gpt_input.content[0]}")
+        raise TypeError(f"Failed to map OpenAIGPTInput: Unknown content {gpt_input.content}")
 
     def _map_image_input(self, gpt_input: OpenAIGPTInput, context_id: UUID) -> ContextEntity:
         return ContextEntity(
@@ -69,7 +70,7 @@ class OpenAIGPTInputToContextEntityMapper:
     def _map_text_input(self, gpt_input: OpenAIGPTInput, context_id: UUID) -> ContextEntity:
         return ContextEntity(
             id=context_id,
-            content_type=ContextEntityContentType.image,
+            content_type=ContextEntityContentType.text,
             content=gpt_input.content if isinstance(gpt_input.content, str) else gpt_input.content[-1].text,
             role=ContextEntityRole(gpt_input.role),
             context_id=context_id

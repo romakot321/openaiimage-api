@@ -34,6 +34,12 @@ class FakeContextEntityRepository(IContextEntityRepository):
     async def get_context_usage(self, context_id: UUID) -> ContextUsageDTO:
         return ContextUsageDTO(text_used=0, images_used=0)
 
+    async def delete_by_pk(self, pk: UUID) -> None:
+        for entity in self._entities:
+            if entity.id == pk:
+                self._entities.remove(entity)
+                return
+
     def _get_new_context_id(self) -> UUID:
         return uuid4()
 

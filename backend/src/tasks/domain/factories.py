@@ -29,14 +29,14 @@ class OpenAIGPTInputFromOpenAIResponseFactory:
 class OpenAIGPTInputFromOpenAIRequestFactory:
     def make_image_gpt_input(self, request: OpenAIGPTImage1Request) -> OpenAIGPTInput:
         return OpenAIGPTInput(
-            role="assistant",
+            role="user",
             content=[OpenAIGPTInputImageContent(image_url=self._encode_image(image)) for image in (request.image or [])]
         )
 
     def make_text_gpt_input(self, request: OpenAIGPT4Request) -> OpenAIGPTInput:
         return OpenAIGPTInput(
-            role="assistant",
-            content=[OpenAIGPTInputTextContent(text=inp.content) for inp in request.input if isinstance(inp.content, str)]
+            role="user",
+            content="\n".join([inp.content[0].text for inp in request.input if hasattr(inp.content[0], "text")])
         )
 
     def _encode_image(self, image: io.BytesIO) -> str:

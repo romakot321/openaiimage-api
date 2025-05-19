@@ -105,6 +105,6 @@ class ContextTaskAdapter(ITaskContextSource[OpenAIGPTInput]):
             context_entity = OpenAIGPTInputToContextEntityMapper().map_one(
                 message, context_left["context_id"]
             )
-            request = ContextEntityCreate(**context_entity.model_dump())
+            request = ContextEntityCreate(**context_entity.model_dump(exclude="id"))
             await self.context_uow.context_entity.create(request)
         await self.context_uow.commit()

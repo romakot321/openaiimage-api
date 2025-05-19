@@ -22,6 +22,5 @@ class ContextReadDTO(BaseModel):
 
 
 class ContextUsageDTO(BaseModel):
-    id: UUID
     text_used: int
     images_used: int
