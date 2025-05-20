@@ -29,13 +29,13 @@ async def create_from_image_to_image(
     model_uow: ModelUoWDepend,
     client: OpenAIAdapterDepend,
     context_client: TaskContextAdapterDepend,
-    image: UploadFile = File(),
+    file: UploadFile = File(),
     schema: TaskCreateImageDTO = Depends(TaskCreateImageDTO.as_form),
 ):
     if isinstance(schema.context_id, str):
         schema.context_id = (await context_client._get_context(schema.context_id, schema.user_id)).id
     task = await create_task(schema, uow)
-    image_buffer = BytesIO(await image.read())
+    image_buffer = BytesIO(await file.read())
     await enqueue_image2image_task(task.id, schema, [image_buffer], client, context_client, uow, model_uow)
     return task
 
@@ -82,7 +82,10 @@ async def get_task_info(task_id: UUID, uow: TaskUoWDepend):
     return task
 
 
-@router.get("/{task_id}/result", response_class=Response)
+public_router = APIRouter()
+
+
+@public_router.get("/{task_id}/result", response_class=Response)
 async def get_task_result(task_id: UUID, uow: TaskUoWDepend):
     buffer = await get_task_image_result(task_id, uow)
     return Response(content=buffer.read(), media_type="image/png")

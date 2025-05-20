@@ -9,6 +9,7 @@ from src.core.config import settings
 from src.db.engine import engine
 from src.tasks.presentation.admin import TaskAdmin
 from src.tasks.presentation.api import router as tasks_router
+from src.tasks.presentation.api import public_router as tasks_public_router
 # from src.contexts.presentation.admin import ContextAdmin
 from src.contexts.presentation.api import router as contexts_router
 from src.models.presentation.admin import ModelAdmin, ModelUserInputsAdmin, ModelCategoryAdmin
@@ -29,6 +30,7 @@ app = FastAPI(title=settings.PROJECT_NAME)
 Instrumentator().instrument(app).expose(app, endpoint='/metrics', include_in_schema=False)
 
 app.include_router(tasks_router, tags=["Task"], prefix="/api/task")
+app.include_router(tasks_public_router, tags=["Task"], prefix="/api/task")
 app.include_router(models_router, tags=["Model"], prefix="/api/model")
 app.include_router(contexts_router, tags=["Context"], prefix="/api/context")
 

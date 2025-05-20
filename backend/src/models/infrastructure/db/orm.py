@@ -17,7 +17,7 @@ class ModelDB(BaseMixin, Base):
     category_name: Mapped[str | None] = mapped_column(ForeignKey("prompt_categories.name", ondelete="CASCADE"))
 
     user_inputs: Mapped[list['ModelUserInputDB']] = relationship(back_populates="model", lazy="selectin")
-    category: Mapped['ModelCategoryDB'] = relationship(back_populates="models", lazy="noload")
+    category: Mapped['ModelCategoryDB'] = relationship(back_populates="models", lazy="selectin")
 
     def __str__(self) -> str:
         return f"model {self.title}"
@@ -31,7 +31,7 @@ class ModelUserInputDB(Base):
     key: Mapped[str]
     description: Mapped[str]
 
-    model: Mapped['ModelDB'] = relationship(back_populates="user_inputs", lazy="noload")
+    model: Mapped['ModelDB'] = relationship(back_populates="user_inputs", lazy="selectin")
 
     def __str__(self) -> str:
         return f"Input {self.description}"
