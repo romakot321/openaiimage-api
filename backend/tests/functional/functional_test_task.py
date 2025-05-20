@@ -12,7 +12,7 @@ totext_create_dto = TaskCreateTextDTO(user_id="test", app_bundle="test", prompt=
 async def test_create_image2image(client: httpx.AsyncClient, mock_image: BytesIO):
     response = await client.post(
         "/api/task/image",
-        files={"image": ("tmp.jpg", mock_image, "image/jpg")},
+        files={"file": ("tmp.jpg", mock_image, "image/jpg")},
         data=toimage_create_dto.model_dump(mode="json", exclude_unset=True)
     )
     assert response.status_code == 200, response.text
@@ -50,4 +50,12 @@ async def test_get_task(client: httpx.AsyncClient):
     assert response.status_code == 200, response.text
     body = response.json()
     assert body.get('id') == task['id'] and body.get('error') is None
+
+
+@pytest.mark.asyncio(loop_scope="session")
+async def test_get_statistics(client: httpx.AsyncClient):
+    response = await client.get("/api/task/statistics")
+    assert response.status_code == 200
+    body = response.json()
+    assert body.get("remaining_tokens") is not None and body.get("remaining_requests") is not None
 

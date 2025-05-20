@@ -55,12 +55,11 @@ async def _create(
     async with override_dependencies({get_openai_adapter: lambda: task_source}):
         response = await client.post(
             "/api/task/image",
-            files={"image": ("tmp.jpg", image, "image/jpg")},
+            files={"file": ("tmp.jpg", image, "image/jpg")},
             data=create_dto.model_dump(mode="json", exclude_unset=True),
         )
     assert response.status_code == 200
 
     data = response.json()
-    logger.debug("CREATED", data)
     assert data.get("id") is not None
     return data

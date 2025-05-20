@@ -12,6 +12,7 @@ class TaskItemDB(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
     task_id: Mapped[UUID] = mapped_column(ForeignKey('tasks.id', ondelete="CASCADE"))
     result_url: Mapped[str]
+    used_tokens: Mapped[int] = mapped_column(server_default="0")
 
     task: Mapped['TaskDB'] = relationship(back_populates='items')
 

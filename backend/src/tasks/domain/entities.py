@@ -44,6 +44,7 @@ class TaskUserInput(BaseModel):
 class TaskItemCreate(BaseModel):
     task_id: UUID
     result_url: str
+    used_tokens: int = 0
 
 
 class TaskCreate(BaseModel):
@@ -64,3 +65,8 @@ class TaskRun(BaseModel):
     context_id: UUID | str | None = None
     user_inputs: list[TaskUserInput]
     model_id: UUID | None = None
+
+
+class TaskStatisticsRemaining(BaseModel):
+    remaining_requests: int
+    remaining_tokens: int

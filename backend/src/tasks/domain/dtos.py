@@ -91,3 +91,8 @@ class TaskReadDTO(BaseModel):
     id: UUID
     error: str | None = None
     items: list[TaskItemDTO]
+
+
+class TaskStatisticsDTO(BaseModel):
+    remaining_tokens: int
+    remaining_requests: int
