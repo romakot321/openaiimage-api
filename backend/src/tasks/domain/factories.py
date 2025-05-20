@@ -80,6 +80,10 @@ class OpenAIRequestFromDTOFactory:
         if context is None:
             return images
         for gpt_input in context:
+            if not gpt_input.content or isinstance(gpt_input.content, str) or not isinstance(
+                gpt_input.content[0], OpenAIGPTInputImageContent
+            ):
+                continue
             images.append(
                 io.BytesIO(
                     base64.b64decode(gpt_input.content[0].image_url.encode()).decode()
@@ -96,7 +100,8 @@ class OpenAIRequestFromDTOFactory:
                 gpt_input.content[0], OpenAIGPTInputImageContent
             ):
                 continue
-            prompt += f"{gpt_input.role}: {gpt_input.content[0].text}\n"
+            content = gpt_input.content if isinstance(gpt_input.content, str) else gpt_input.content[0].text
+            prompt += f"{gpt_input.role}: {content}\n"
         if model is not None:
             model_text = model.text
             for inp in (dto.user_inputs or []):

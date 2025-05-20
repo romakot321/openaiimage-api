@@ -14,7 +14,7 @@ from tests.fakes.task import FakeTaskUnitOfWork
 
 @pytest_asyncio.fixture(loop_scope="session")
 async def client() -> AsyncIterator[httpx.AsyncClient]:
-    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url='http://testserver') as client:
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url='http://testserver', headers={"Api-Token": "123"}) as client:
         yield client
 
 

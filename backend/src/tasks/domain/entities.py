@@ -49,7 +49,7 @@ class TaskItemCreate(BaseModel):
 class TaskCreate(BaseModel):
     user_id: str
     app_bundle: str
-    context_id: UUID | None = None
+    context_id: UUID | str | None = None
 
 
 class TaskUpdate(BaseModel):
@@ -61,6 +61,6 @@ class TaskRun(BaseModel):
     quality: TaskResultQuality
     size: TaskResultSize
     webhook_url: str | None = None
-    context_id: UUID | None = None
+    context_id: UUID | str | None = None
     user_inputs: list[TaskUserInput]
     model_id: UUID | None = None
