@@ -32,6 +32,8 @@ async def create_from_image_to_image(
     image: UploadFile = File(),
     schema: TaskCreateImageDTO = Depends(TaskCreateImageDTO.as_form),
 ):
+    if isinstance(schema.context_id, str):
+        schema.context_id = (await context_client._get_context(schema.context_id, schema.user_id)).id
     task = await create_task(schema, uow)
     image_buffer = BytesIO(await image.read())
     await enqueue_image2image_task(task.id, schema, [image_buffer], client, context_client, uow, model_uow)
@@ -46,6 +48,8 @@ async def create_from_text_to_image(
     context_client: TaskContextAdapterDepend,
     schema: TaskCreateImageDTO,
 ):
+    if isinstance(schema.context_id, str):
+        schema.context_id = (await context_client._get_context(schema.context_id, schema.user_id)).id
     task = await create_task(schema, uow)
     await enqueue_text2image_task(task.id, schema, client, context_client, uow, model_uow)
     return task
@@ -58,6 +62,8 @@ async def create_from_text_to_text(
     context_client: TaskContextAdapterDepend,
     schema: TaskCreateTextDTO
 ):
+    if isinstance(schema.context_id, str):
+        schema.context_id = (await context_client._get_context(schema.context_id, schema.user_id)).id
     task = await create_task(schema, uow)
     await enqueue_text2text_task(task.id, schema, client, context_client, uow)
     return task
