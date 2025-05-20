@@ -12,7 +12,7 @@ class OpenAIAdapter(ITaskSourceClient[OpenAIGPTImage1Request, OpenAIGPT4Request,
 
     async def generate_image2image(self, request: OpenAIGPTImage1Request) -> OpenAIResponse:
         client = AsyncOpenAI()
-        raw_response = await client.images.with_raw_response.edit(**request.model_dump())
+        raw_response = await client.images.with_raw_response.edit(**(request.model_dump(exclude="image") | {"image": request.image}))
         response = raw_response.parse()
         if not response.data or not response.data[0].b64_json:
             raise IntegrationGenerationError(detail="Empty response")
@@ -25,6 +25,8 @@ class OpenAIAdapter(ITaskSourceClient[OpenAIGPTImage1Request, OpenAIGPT4Request,
         )
 
     async def generate_text2image(self, request: OpenAIGPTImage1Request) -> OpenAIResponse:
+        if request.image:
+            return await self.generate_image2image(request)
         client = AsyncOpenAI()
         raw_response = await client.images.with_raw_response.generate(**request.model_dump(exclude="image"))
         response = raw_response.parse()

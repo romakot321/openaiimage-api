@@ -1,6 +1,7 @@
 import asyncio
 from uuid import UUID
 import io
+import base64
 
 import redis
 import rq
@@ -65,7 +66,7 @@ async def enqueue_image2image_task(
     job_id = task_queue.enqueue(
         _run_task_image2image_openai,
         task_id,
-        request.model_dump(mode="json"),
+        request.model_dump(mode="json", context={"encode_image": True}),
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)
@@ -96,7 +97,7 @@ async def enqueue_text2image_task(
     job_id = task_queue.enqueue(
         _run_task_text2image_openai,
         task_id,
-        request.model_dump(mode="json"),
+        request.model_dump(mode="json", context={"encode_image": True}),
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)

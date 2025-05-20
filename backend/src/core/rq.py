@@ -6,7 +6,6 @@ from src.core.config import settings
 
 class _PickableRedis(Redis):
     def __getstate__(self):
-        print(self.__dict__)
         return self.__dict__.copy()
 
     def __setstate__(self, state):
