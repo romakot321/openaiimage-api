@@ -27,4 +27,3 @@ class TaskWebhookClient:
         if response.status // 100 != 2:
             logger.warning("Failed to send webhook: unexpected response: " + await response.text())
         logger.info(f"Sended webhook for task {task.id}")
-        print(f"Sended webhook for task {task.id}")

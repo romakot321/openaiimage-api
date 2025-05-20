@@ -86,7 +86,7 @@ class OpenAIRequestFromDTOFactory:
                 continue
             images.append(
                 io.BytesIO(
-                    base64.b64decode(gpt_input.content[0].image_url.encode()).decode()
+                    base64.b64decode(gpt_input.content[0].image_url.encode())
                 )
             )
         return images

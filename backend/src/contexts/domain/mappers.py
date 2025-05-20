@@ -41,6 +41,10 @@ class ContextEntityToOpenAIGPTInputMapper:
         )
 
     def _encode_image(self, filename: str) -> str:
+        if len(filename) > 256:
+            return filename
+        if "https" in filename:
+            filename = filename.rstrip("/result").rsplit("/", 1)[1]
         file = self.storage.open(filename)
         return base64.b64encode(file.read()).decode()
 
@@ -49,7 +53,6 @@ class OpenAIGPTInputToContextEntityMapper:
     def map_one(self, gpt_input: OpenAIGPTInput, context_id: UUID) -> ContextEntity:
         if not gpt_input.content:
             raise ValueError("Failed to map OpenAIGPTInput: Empty content")
-        print("map OpenAIGPTInput", gpt_input)
 
         if isinstance(gpt_input.content, str) or hasattr(gpt_input.content[-1], "text"):
             return self._map_text_input(gpt_input, context_id)

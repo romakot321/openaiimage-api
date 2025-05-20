@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: ./
-    container_name: openaiimage_refact_app
+    container_name: openaiimagenew_app
     depends_on:
       - db
       - redis
@@ -18,7 +18,7 @@ services:
 
   db:
     image: postgres:latest
-    container_name: openaiimage_refact_db
+    container_name: openaiimagenew_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./etc/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf:ro
@@ -36,7 +36,7 @@ services:
 
   redis:
     image: redis
-    container_name: openaiimage_refact_redis
+    container_name: openaiimagenew_redis
     restart: always
     env_file:
       - .env
@@ -49,14 +49,16 @@ services:
       dockerfile: ./rq.Dockerfile
     env_file:
       - .env
-    container_name: openaiimage_refact_rqworker
+    container_name: openaiimagenew_rqworker
     restart: always
     networks:
       default:
+    volumes:
+      - app_localstorage:/app/storage
 
   prometheus:
     image: prom/prometheus:v3.2.1
-    container_name: openaiimage_refact_prometheus
+    container_name: openaiimagenew_prometheus
     networks:
       default:
     depends_on:
@@ -71,7 +73,7 @@ services:
 
   postgres_exporter:
     image: prometheuscommunity/postgres-exporter:latest
-    container_name: openaiimage_refact_postgres_prometheus_exporter
+    container_name: openaiimagenew_postgres_prometheus_exporter
     depends_on:
       - db
     env_file:
@@ -84,7 +86,7 @@ services:
 
   grafana:
     image: grafana/grafana:11.6.0
-    container_name: openaiimage_refact_grafana
+    container_name: openaiimagenew_grafana
     depends_on:
       - prometheus
     volumes:
@@ -93,6 +95,7 @@ services:
       - .env
     networks:
       default:
+      global_network:
 
 networks:
   global_network:
