@@ -35,62 +35,6 @@ from src.tasks.domain.interfaces.task_source_client import (
 from src.tasks.domain.interfaces.task_uow import ITaskUnitOfWork
 
 
-async def _on_task_finished_append_context(
-    context_id: UUID | str, user_id: str, context_message: OpenAIGPTInput
-):
-    context_adapter_getter = get_context_task_adapter()
-    context_adapter = await anext(context_adapter_getter)
-    await context_adapter.append_task_context(context_id, context_message, user_id)
-    try:
-        await anext(context_adapter_getter)
-    except StopAsyncIteration:
-        pass
-
-
-def on_image_task_finished(
-    job: rq.job.Job, connection: redis.Redis, result: OpenAIResponse, *args, **kwargs
-):
-    async def _async_task(
-        job: rq.job.Job,
-        connection: redis.Redis,
-        result: OpenAIResponse,
-        *args,
-        **kwargs,
-    ):
-        task_id: UUID = job.args[0]
-        async with get_task_uow() as uow:
-            task = await uow.tasks.get_by_pk(task_id)
-        if task.context_id:
-            context_message = (
-                OpenAIGPTInputFromOpenAIResponseFactory().make_image_gpt_input(result)
-            )
-            await _on_task_finished_append_context(
-                task.context_id, task.user_id, context_message
-            )
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(_async_task(job, connection, result, *args, **kwargs))
-
-
-def on_text_task_finished(
-    job: rq.job.Job, connection: redis.Redis, result: OpenAIResponse, *args, **kwargs
-):
-    async def _async_task(job, connection, result, *args, **kwargs):
-        task_id: UUID = job.args[0]
-        async with get_task_uow() as uow:
-            task = await uow.tasks.get_by_pk(task_id)
-        if task.context_id:
-            context_message = (
-                OpenAIGPTInputFromOpenAIResponseFactory().make_text_gpt_input(result)
-            )
-            await _on_task_finished_append_context(
-                task.context_id, task.user_id, context_message
-            )
-
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(_async_task(job, connection, result, *args, **kwargs))
-
-
 async def send_task_webhook(task_id: UUID, webhook_url: str):
     async with get_task_uow() as uow:
         task = await uow.tasks.get_by_pk(task_id)
@@ -121,8 +65,7 @@ async def enqueue_image2image_task(
     job_id = task_queue.enqueue(
         _run_task_image2image_openai,
         task_id,
-        request,
-        #on_success=on_image_task_finished,
+        request.model_dump(mode="json"),
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)
@@ -153,8 +96,7 @@ async def enqueue_text2image_task(
     job_id = task_queue.enqueue(
         _run_task_text2image_openai,
         task_id,
-        request,
-        #on_success=on_image_task_finished,
+        request.model_dump(mode="json"),
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)
@@ -179,8 +121,7 @@ async def enqueue_text2text_task(
     job_id = task_queue.enqueue(
         _run_task_text2text_openai,
         task_id,
-        request,
-        #on_success=on_text_task_finished,
+        request.model_dump(mode="json"),
     )
     if schema.webhook_url:
         dependency = Dependency(jobs=[job_id], allow_failure=True)
