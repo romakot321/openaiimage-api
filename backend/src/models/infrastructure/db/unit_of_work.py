@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.models.domain.interfaces.model_uow import IModelUnitOfWork
 
-from src.models.infrastructure.db.repositories import PGModelRepository
+from src.models.infrastructure.db.repositories import PGModelCategoryRepository, PGModelRepository
 from src.db.engine import async_session_maker
 
 
@@ -12,6 +12,7 @@ class PGModelUnitOfWork(IModelUnitOfWork):
     async def __aenter__(self):
         self.session: AsyncSession = self.session_factory()
         self.models = PGModelRepository(self.session)
+        self.model_categories = PGModelCategoryRepository(self.session)
         return await super().__aenter__()
 
     async def __aexit__(self, *args):

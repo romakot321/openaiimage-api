@@ -19,12 +19,13 @@ class Model(BaseModel):
     image: io.BytesIO | None = None
     category_name: str | None = None
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, from_attributes=True)
 
 
 class ModelCategory(BaseModel):
     id: UUID
     name: str
+    models: list[Model]
 
 
 class ModelList(BaseModel):

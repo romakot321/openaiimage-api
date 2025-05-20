@@ -1,10 +1,12 @@
 import abc
 
+from src.models.domain.interfaces.model_category_repository import IModelCategoryRepository
 from src.models.domain.interfaces.model_repository import IModelRepository
 
 
 class IModelUnitOfWork(abc.ABC):
     models: IModelRepository
+    model_categories: IModelCategoryRepository
 
     async def commit(self):
         await self._commit()
