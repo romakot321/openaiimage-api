@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     LOCAL_STORAGE_PATH: str = "storage"
     ENVIRONMENT: Literal['test', 'prod'] = 'prod'
     DOMAIN: str
+    SECRET_KEY: str = "REPLACEME"
     API_TOKEN: str = "123"
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "admin"

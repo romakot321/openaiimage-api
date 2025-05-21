@@ -41,4 +41,4 @@ class AdminAuth(AuthenticationBackend):
         return True
 
 
-authentication_backend = AdminAuth(secret_key=os.getenv("ADMIN_SECRET_KEY", "replaceme"))
+authentication_backend = AdminAuth(secret_key=settings.SECRET_KEY)

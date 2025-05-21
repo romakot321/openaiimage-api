@@ -9,6 +9,7 @@ dependencies = [
     "fastapi>=0.115.12",
     "fastapi-storages>=0.3.0",
     "gunicorn>=23.0.0",
+    "itsdangerous>=2.2.0",
     "openai>=1.79.0",
     "pillow>=11.2.1",
     "prometheus-fastapi-instrumentator>=7.1.0",
