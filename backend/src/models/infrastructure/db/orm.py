@@ -1,10 +1,12 @@
 from uuid import UUID
-from sqlalchemy import ForeignKey, Table, func, select
+from sqlalchemy import ForeignKey, Table, func, select, text
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from fastapi_storages.integrations.sqlalchemy import ImageType
 from src.db.base import Base, BaseMixin
 from src.core.filesystem_storage import storage
+
+from src.tasks.infrastructure.db.orm import TaskDB
 
 
 class ModelUserInputAssociationDB(Base):
@@ -41,7 +43,7 @@ class ModelDB(BaseMixin, Base):
     @tasks_count.expression
     @classmethod
     def tasks_count(cls):
-        return select(func.count()).select_from(cls.tasks)
+        return select(func.count()).select_from(TaskDB).filter_by(model_id=cls.id)
 
 
 class ModelUserInputDB(Base):

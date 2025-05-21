@@ -42,7 +42,7 @@ class ModelAdmin(ModelView, model=ModelDB):
 
     column_formatters = {"image": format_image_url_in_list}
     column_labels = {
-        ModelDB.image: "",
+        ModelDB.image: "Превью",
         ModelDB.category_name: "Категория",
         ModelDB.tasks_count: "Генераций",
         ModelDB.title: "Название",
