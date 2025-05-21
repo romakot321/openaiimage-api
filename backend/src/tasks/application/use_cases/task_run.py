@@ -75,8 +75,9 @@ async def _run_task(
         )
         await uow.commit()
     try:
-        async with statistics_uow:
-            await statistics_uow.statistics.store_remaining(TaskStatisticsRemaining(**result.model_dump()))
+        if result.remaining_requests is not None and result.remaining_tokens is not None:
+            async with statistics_uow:
+                await statistics_uow.statistics.store_remaining(TaskStatisticsRemaining(**result.model_dump()))
     except Exception as e:
         logger.exception(e)
 
@@ -182,10 +183,10 @@ async def _run_task_text2text_openai(
 ) -> OpenAIResponse:
     """Implemented for rq integration. Do not use it directly"""
     client = get_openai_adapter()
+    statistics_uow = get_task_statistics_uow()
     async with get_task_uow() as uow:
         request = OpenAIGPT4Request.model_validate(request_raw)
-        async with get_task_statistics_uow() as statistics_uow:
-            result = await run_task_text2text(task_id, request, client, uow, statistics_uow)
+        result = await run_task_text2text(task_id, request, client, uow, statistics_uow)
         await _on_text_task_finished(task_id, request, result, uow)
     return result
 
@@ -195,10 +196,10 @@ async def _run_task_text2image_openai(
 ) -> OpenAIResponse:
     """Implemented for rq integration. Do not use it directly"""
     client = get_openai_adapter()
+    statistics_uow = get_task_statistics_uow()
     async with get_task_uow() as uow:
         request = OpenAIGPTImage1Request.model_validate(request_raw)
-        async with get_task_statistics_uow() as statistics_uow:
-            result = await run_task_text2image(task_id, request, client, uow, statistics_uow)
+        result = await run_task_text2image(task_id, request, client, uow, statistics_uow)
         await _on_image_task_finished(task_id, request, result, uow)
     return result
 
@@ -208,9 +209,9 @@ async def _run_task_image2image_openai(
 ) -> OpenAIResponse:
     """Implemented for rq integration. Do not use it directly"""
     client = get_openai_adapter()
+    statistics_uow = get_task_statistics_uow()
     async with get_task_uow() as uow:
         request = OpenAIGPTImage1Request.model_validate(request_raw)
-        async with get_task_statistics_uow() as statistics_uow:
-            result = await run_task_image2image(task_id, request, client, uow, statistics_uow)
+        result = await run_task_image2image(task_id, request, client, uow, statistics_uow)
         await _on_image_task_finished(task_id, request, result, uow)
     return result

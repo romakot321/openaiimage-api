@@ -11,7 +11,7 @@ class RedisTaskStatisticsUnitOfWork(ITaskStatisticsUnitOfWork):
         self.session_factory = session_factory
 
     async def __aenter__(self):
-        self.session: Redis = self.session_factory()
+        self.session: Redis = await self.session_factory()
         self.statistics = RedisTaskStatisticsRepository(self.session)
         return await super().__aenter__()
 

@@ -75,7 +75,7 @@ async def create_from_text_to_text(
     uow: TaskUoWDepend,
     client: OpenAIAdapterDepend,
     context_client: TaskContextAdapterDepend,
-    schema: TaskCreateTextDTO = Depends(),
+    schema: TaskCreateTextDTO = Depends(TaskCreateTextDTO.as_form),
 ):
     if isinstance(schema.context_id, str):
         schema.context_id = (

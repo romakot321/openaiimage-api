@@ -102,6 +102,8 @@ class ContextTaskAdapter(ITaskContextSource[OpenAIGPTInput]):
                 1 * int(context_left["images_left"]),
             )
         for message in messages:
+            if not message.content:
+                continue
             context_entity = OpenAIGPTInputToContextEntityMapper().map_one(
                 message, context_left["context_id"]
             )

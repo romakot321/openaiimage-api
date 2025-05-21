@@ -20,6 +20,23 @@ class TaskCreateTextDTO(BaseModel):
     context_id: UUID | Literal['last'] | None = None
     webhook_url: str | None = None
 
+    @classmethod
+    def as_form(
+        cls,
+        prompt: str | None = Form(None),
+        webhook_url: str | None = Form(None),
+        context_id: UUID | Literal['last'] | None = Form(None),
+        user_id: str = Form(),
+        app_bundle: str = Form(),
+    ):
+        return cls(
+            prompt=prompt,
+            context_id=context_id,
+            webhook_url=webhook_url,
+            user_id=user_id,
+            app_bundle=app_bundle,
+        )
+
 
 class TaskCreateImageDTO(BaseModel):
     user_id: str
