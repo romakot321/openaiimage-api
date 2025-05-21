@@ -19,6 +19,7 @@ class PGModelRepository(IModelRepository):
     async def get_list(self, params: ModelList) -> list[Model]:
         query = select(ModelDB).offset(params.page * params.count).limit(params.count)
         query = query.options(selectinload(ModelDB.user_inputs))
+        query = query.order_by(ModelDB.position)
         result = await self.session.scalars(query)
         return [self._to_domain(model) for model in result]
 
@@ -50,6 +51,7 @@ class PGModelCategoryRepository(IModelCategoryRepository):
     async def get_list(self, params: ModelList) -> list[ModelCategory]:
         query = select(ModelCategoryDB).offset(params.page * params.count).limit(params.count)
         query = query.options(selectinload(ModelCategoryDB.models).subqueryload(ModelDB.user_inputs))
+        query = query.order_by(ModelCategoryDB.position)
         result = await self.session.scalars(query)
         return [self._to_domain(model) for model in result]
 

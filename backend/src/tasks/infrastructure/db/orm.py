@@ -22,10 +22,12 @@ class TaskDB(BaseMixin, Base):
 
     error: Mapped[str | None] = mapped_column(nullable=True)
     context_id: Mapped[UUID | None] = mapped_column(ForeignKey("contexts.id", ondelete="CASCADE"))
+    model_id: Mapped[UUID | None] = mapped_column(ForeignKey("prompts.id", ondelete="SET NULL"))
     user_id: Mapped[str]
     app_bundle: Mapped[str]
 
     items: Mapped[list['TaskItemDB']] = relationship(back_populates='task', lazy='joined', cascade="all,delete")
     #images: Mapped[list['TaskImage']] = relationship(back_populates="task", lazy='selectin', cascade="all,delete")
     context: Mapped['ContextDB'] = relationship(back_populates="tasks", lazy="noload")
+    model: Mapped["ModelDB"] = relationship(back_populates="tasks", lazy="noload")
 

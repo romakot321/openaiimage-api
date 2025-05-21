@@ -50,6 +50,7 @@ class TaskItemCreate(BaseModel):
 class TaskCreate(BaseModel):
     user_id: str
     app_bundle: str
+    model_id: UUID | None = None
     context_id: UUID | str | None = None
 
 
