@@ -3,10 +3,9 @@ from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
 from uuid import uuid4
 import os
+import jwt
 
 from src.core.config import settings
-
-tokens = []
 
 
 class AdminAuth(AuthenticationBackend):
@@ -15,10 +14,20 @@ class AdminAuth(AuthenticationBackend):
 
     @classmethod
     def _generate_token(cls) -> str:
-        global tokens
-        token = (str(uuid4()) + str(uuid4())).replace('-', '')
-        tokens.append(token)
+        token = jwt.encode(payload={"sub": "admin"}, key=settings.SECRET_KEY, algorithm="HS256")
         return token
+
+    @classmethod
+    def _validate_token(cls, value: str | None) -> bool:
+        if value is None:
+            return False
+
+        try:
+            payload = jwt.decode(jwt=value, key=settings.SECRET_KEY, algorithms=["HS256"])
+        except jwt.exceptions.InvalidTokenError:
+            return False
+
+        return payload.get("sub") == "admin"
 
     async def login(self, request: Request) -> bool:
         form = await request.form()
@@ -34,11 +43,8 @@ class AdminAuth(AuthenticationBackend):
         return True
 
     async def authenticate(self, request: Request) -> bool:
-        global tokens
         token = request.session.get("token")
-        if not token or token not in tokens:
-            return False
-        return True
+        return self._validate_token(token)
 
 
 authentication_backend = AdminAuth(secret_key=settings.SECRET_KEY)
