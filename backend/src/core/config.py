@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal['test', 'prod'] = 'prod'
     DOMAIN: str
     API_TOKEN: str = "123"
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_PASSWORD: str = "admin"
 
     PROJECT_NAME: str = os.environ.get("PROJECT_NAME", "UNNAMED PROJECT")
 

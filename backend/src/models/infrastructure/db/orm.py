@@ -1,8 +1,17 @@
-from sqlalchemy import ForeignKey
+from uuid import UUID
+from sqlalchemy import ForeignKey, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from fastapi_storages.integrations.sqlalchemy import ImageType
 from src.db.base import Base, BaseMixin
 from src.core.filesystem_storage import storage
+
+
+class ModelUserInputAssociationDB(Base):
+    __tablename__ = "prompts_userinputs_association"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prompt_id: Mapped[UUID] = mapped_column(ForeignKey("prompts.id"))
+    prompt_userinput_id: Mapped[int] = mapped_column(ForeignKey("prompt_userinputs.id"))
 
 
 class ModelDB(BaseMixin, Base):
@@ -16,7 +25,7 @@ class ModelDB(BaseMixin, Base):
     image: Mapped[ImageType | None] = mapped_column(type_=ImageType(storage=storage), nullable=True)
     category_name: Mapped[str | None] = mapped_column(ForeignKey("prompt_categories.name", ondelete="CASCADE"))
 
-    user_inputs: Mapped[list['ModelUserInputDB']] = relationship(back_populates="model", lazy="selectin")
+    user_inputs: Mapped[list['ModelUserInputDB']] = relationship(back_populates="model", lazy="selectin", secondary="prompts_userinputs_association")
     category: Mapped['ModelCategoryDB'] = relationship(back_populates="models", lazy="selectin")
 
     def __str__(self) -> str:
@@ -27,15 +36,13 @@ class ModelUserInputDB(Base):
     __tablename__ = "prompt_userinputs"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True, autoincrement=True)
-    prompt_id: Mapped[int] = mapped_column(ForeignKey("prompts.id", ondelete="CASCADE"))
     key: Mapped[str]
     description: Mapped[str]
 
-    model: Mapped['ModelDB'] = relationship(back_populates="user_inputs", lazy="selectin")
+    model: Mapped[list['ModelDB']] = relationship(back_populates="user_inputs", lazy="selectin", secondary="prompts_userinputs_association")
 
     def __str__(self) -> str:
         return f"Input {self.description}"
-
 
 
 class ModelCategoryDB(BaseMixin, Base):

@@ -1,10 +1,12 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 import logging
 from sqladmin import Admin
 from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.core.config import settings
-import src.core.logging_setup
+from src.core.admin import authentication_backend
+#import src.core.logging_setup
 
 from src.db.engine import engine
 from src.tasks.presentation.admin import TaskAdmin
@@ -33,9 +35,10 @@ app.include_router(tasks_router, tags=["Task"], prefix="/api/task")
 app.include_router(tasks_public_router, tags=["Task"], prefix="/api/task")
 app.include_router(models_router, tags=["Model"], prefix="/api/model")
 app.include_router(contexts_router, tags=["Context"], prefix="/api/context")
+app.mount("/storage", StaticFiles(directory="storage"))
 
 
-admin = Admin(app, engine)
+admin = Admin(app, engine, authentication_backend=authentication_backend)
 admin.add_view(TaskAdmin)
 admin.add_view(ModelAdmin)
 admin.add_view(ModelUserInputsAdmin)
