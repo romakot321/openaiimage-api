@@ -29,5 +29,4 @@ class TaskDB(BaseMixin, Base):
     items: Mapped[list['TaskItemDB']] = relationship(back_populates='task', lazy='joined', cascade="all,delete")
     #images: Mapped[list['TaskImage']] = relationship(back_populates="task", lazy='selectin', cascade="all,delete")
     context: Mapped['ContextDB'] = relationship(back_populates="tasks", lazy="noload")
-    model: Mapped["ModelDB"] = relationship(back_populates="tasks", lazy="noload")
 

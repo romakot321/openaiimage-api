@@ -31,7 +31,7 @@ class ModelDB(BaseMixin, Base):
 
     user_inputs: Mapped[list['ModelUserInputDB']] = relationship(back_populates="model", lazy="selectin", secondary="prompts_userinputs_association")
     category: Mapped['ModelCategoryDB'] = relationship(back_populates="models", lazy="selectin")
-    tasks: Mapped[list["TaskDB"]] = relationship(back_populates="model", lazy="selectin")
+    tasks: Mapped[list["TaskDB"]] = relationship(lazy="selectin")
 
     def __str__(self) -> str:
         return f"model {self.title}"
