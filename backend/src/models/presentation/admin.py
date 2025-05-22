@@ -31,13 +31,13 @@ class ModelAdmin(ModelView, model=ModelDB):
     name = "Model"
     column_list = [
         ModelDB.image,
-        ModelDB.category_name,
-        ModelDB.tasks_count,
         ModelDB.title,
+        ModelDB.category_name,
         ModelDB.position,
+        ModelDB.tasks_count,
     ]
     column_searchable_list = [ModelDB.id, ModelDB.title]
-    column_default_sort = [(ModelDB.position, False)]
+    column_default_sort = [(ModelDB.created_at, True)]
     column_sortable_list = [ModelDB.position, ModelDB.created_at, ModelDB.tasks_count]
 
     column_formatters = {"image": format_image_url_in_list}
@@ -53,6 +53,7 @@ class ModelAdmin(ModelView, model=ModelDB):
         "text": format_text,
     }
     form_overrides = {"text": wtforms.TextAreaField}
+    page_size = 50
 
 
 class ModelUserInputsAdmin(ModelView, model=ModelUserInputDB):
