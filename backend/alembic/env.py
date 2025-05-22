@@ -10,6 +10,7 @@ from src.db.base import Base
 from src.tasks.infrastructure.db.orm import TaskDB, TaskItemDB
 from src.contexts.infrastructure.db.orm import ContextDB, ContextEntityDB
 from src.models.infrastructure.db.orm import ModelCategoryDB, ModelDB, ModelUserInputDB
+from src.users.infrastructure.db.orm import UserDB
 from src.core.config import settings
 
 # this is the Alembic Config object, which provides

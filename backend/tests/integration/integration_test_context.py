@@ -36,15 +36,17 @@ async def test_create_and_add_task(client: httpx.AsyncClient):
     context = await _create(client)
 
     response = await client.post(
-        "/api/task/text/text",
+        "/api/task/text",
         json={
-            "prompt": "test",
+            "user_prompt": "test",
             "user_id": "test",
             "app_bundle": "test",
+            "size": "1024x1024",
+            "quality": "auto",
             "context_id": context["id"],
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 200, response.text
     task = response.json()
     assert task.get("id") is not None
 

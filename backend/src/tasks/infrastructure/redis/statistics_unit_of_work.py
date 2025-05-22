@@ -17,4 +17,4 @@ class RedisTaskStatisticsUnitOfWork(ITaskStatisticsUnitOfWork):
 
     async def __aexit__(self, *args):
         await super().__aexit__(*args)
-        await self.session.close()
+        await self.session.aclose()

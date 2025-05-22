@@ -30,6 +30,8 @@ class Settings(BaseSettings):
     CONTEXT_MAX_SYMBOLS: int = 30000
     CONTEXT_MAX_IMAGES: int = 16
 
+    GENERATION_TOKENS_COST: int = 4
+
     @staticmethod
     def _build_dsn(scheme: str, values: dict) -> str:
         return str(
