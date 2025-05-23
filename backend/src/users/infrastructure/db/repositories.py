@@ -34,6 +34,22 @@ class PGUserRepository(IUserRepository):
 
         return self._to_domain(user)
 
+    async def update_by_external(self, external_id: str, app_bundle: str, user_data: UserUpdate) -> User:
+        query = (
+            update(UserDB)
+            .values(**user_data.model_dump(exclude_unset=True))
+            .filter_by(external_id=external_id, app_bundle=app_bundle)
+        )
+        await self.session.execute(query)
+
+        try:
+            await self.session.flush()
+        except IntegrityError as e:
+            detail = "User can't be updated. " + str(e)
+            raise HTTPException(409, detail=detail)
+
+        return await self.get_by_external(external_id, app_bundle)
+
     async def update_by_pk(self, pk: UUID, user_data: UserUpdate) -> User:
         query = (
             update(UserDB)

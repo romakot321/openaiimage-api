@@ -4,7 +4,7 @@ from src.users.domain.interfaces.user_uow import IUserUnitOfWork
 
 
 async def create_user(user_data: UserCreateDTO, uow: IUserUnitOfWork) -> UserReadDTO:
-    request = UserCreate(external_id=user_data.user_id, app_bundle=user_data.app_bundle, tokens=20)
+    request = UserCreate(external_id=user_data.user_id, app_bundle=user_data.app_bundle, tokens=0)
     async with uow:
         user = await uow.users.create(request)
         await uow.commit()

@@ -15,3 +15,4 @@ def get_tokens_uow() -> ITokensUnitOfWork:
 
 
 UserUoWDepend = Annotated[IUserUnitOfWork, Depends(get_user_uow)]
+TokensUoWDepend = Annotated[ITokensUnitOfWork, Depends(get_tokens_uow)]

@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import AnyUrl, PostgresDsn, ValidationInfo, field_validator
+from pydantic import AnyUrl, PostgresDsn, ValidationInfo, field_validator, model_validator
 from pydantic_settings import BaseSettings
 import os
 
@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     API_TOKEN: str = "123"
     ADMIN_USERNAME: str = "admin"
     ADMIN_PASSWORD: str = "admin"
+    APPHUD_SECRET_TOKEN: str = "REPLACEME"
 
     PROJECT_NAME: str = os.environ.get("PROJECT_NAME", "UNNAMED PROJECT")
 
@@ -30,7 +31,7 @@ class Settings(BaseSettings):
     CONTEXT_MAX_SYMBOLS: int = 30000
     CONTEXT_MAX_IMAGES: int = 16
 
-    GENERATION_TOKENS_COST: int = 4
+    GENERATION_TOKENS_COST: int = 10
 
     @staticmethod
     def _build_dsn(scheme: str, values: dict) -> str:
@@ -45,11 +46,15 @@ class Settings(BaseSettings):
             )
         )
 
-    @field_validator("API_TOKEN")
-    def validate_api_token(cls, v: str, info: ValidationInfo) -> str:
-        if v == "123" and info.data.get("ENVIRONMENT") == "prod":
+    @model_validator(mode="after")
+    def validate_environment(self)r:
+        if self.ENVIRONMENT != "prod":
+            return self
+        if self.API_TOKEN == "123":
             raise ValueError("Define not default api_token env")
-        return v
+        if self.APPHUD_SECRET_TOKEN == "REPLACEME":
+            raise ValueError("Define not default APPHUD_SECRET_TOKEN env")
+        return self
 
     @field_validator("DATABASE_URI")
     def assemble_db_connection(cls, v: str | None, info: ValidationInfo) -> str:
