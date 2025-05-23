@@ -1,12 +1,31 @@
 from uuid import UUID
+from fastapi_storages.integrations.sqlalchemy import ImageType as _ImageType
+from fastapi_storages import StorageFile
 from sqlalchemy import ForeignKey, Table, func, select, text
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from fastapi_storages.integrations.sqlalchemy import ImageType
 from src.db.base import Base, BaseMixin
 from src.core.filesystem_storage import storage
 
 from src.tasks.infrastructure.db.orm import TaskDB
+
+
+class ImageType(_ImageType):
+    def process_bind_param(self, value, dialect) -> str | None:
+        if value is None:
+            return value
+        if len(value.file.read(1)) != 1:
+            return None
+
+        file = StorageFile(name=value.filename, storage=self.storage)
+
+        if value.size is None:
+            return file.name
+
+        file.write(file=value.file)
+
+        value.file.close()
+        return file.name
 
 
 class ModelUserInputAssociationDB(Base):

@@ -49,10 +49,7 @@ logger = logging.getLogger(__name__)
 
 
 def _save_response(task_id: UUID, image_encoded: str) -> str:
-    try:
-        image_decoded = io.BytesIO(base64.b64decode(image_encoded.encode()))
-    except binascii.Error:  # If input not image, return input
-        return image_encoded
+    image_decoded = io.BytesIO(base64.b64decode(image_encoded.encode()))
     filename = storage.generate_new_filename(str(task_id))
     storage.write(image_decoded, filename)
     return f"https://{settings.DOMAIN}/api/task/{filename}/result"
@@ -64,6 +61,7 @@ async def _run_task(
     uow: ITaskUnitOfWork,
     client: ITaskSourceClient,
     statistics_uow: ITaskStatisticsUnitOfWork,
+    store: bool = True
 ) -> TResponse:
     try:
         result = await coroutine
@@ -73,7 +71,8 @@ async def _run_task(
             await uow.commit()
         raise e
 
-    result.content = _save_response(task_id, result.content)
+    if store:
+        result.content = _save_response(task_id, result.content)
     async with uow:
         await uow.task_items.create(
             TaskItemCreate(
@@ -150,7 +149,7 @@ async def run_task_text2text(
     tokens_uow: ITokensUnitOfWork,
 ) -> TResponse:
     method = client.generate_text2text(request)
-    result = await _run_task(method, task_id, uow, client, statistics_uow)
+    result = await _run_task(method, task_id, uow, client, statistics_uow, store=False)
     await write_off_user_tokens(task_id, tokens_uow, uow)
     return result
 
