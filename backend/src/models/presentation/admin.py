@@ -53,6 +53,7 @@ class ModelAdmin(ModelView, model=ModelDB):
         "text": format_text,
     }
     form_overrides = {"text": wtforms.TextAreaField}
+    form_excluded_columns = [ModelDB.category_name, ModelDB.category]
     page_size = 50
 
 

@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 import io
 
@@ -23,6 +24,8 @@ from src.tasks.domain.interfaces.task_source_client import (
 )
 from src.tasks.domain.interfaces.task_uow import ITaskUnitOfWork
 
+logger = logging.getLogger(__name__)
+
 
 async def send_task_webhook(task_id: UUID, webhook_url: str):
     async with get_task_uow() as uow:
@@ -41,6 +44,7 @@ async def enqueue_image2image_task(
     model_uow: IModelUnitOfWork,
 ):
     context, model = None, None
+    logger.debug(f"Enqueue image2image task: {task_id} {schema}")
     if schema.context_id:
         context = await context_client.get_task_context(
             schema.context_id, schema.user_id
@@ -71,6 +75,7 @@ async def enqueue_text2image_task(
     uow: ITaskUnitOfWork,
     model_uow: IModelUnitOfWork,
 ):
+    logger.debug(f"Enqueue text2image task: {task_id} {schema}")
     context, model = None, None
     if schema.context_id:
         context = await context_client.get_task_context(
@@ -79,9 +84,11 @@ async def enqueue_text2image_task(
     if schema.model_id is not None:
         async with model_uow:
             model = await model_uow.models.get_by_pk(schema.model_id)
+            logger.info(str(model))
     request = OpenAIRequestFromDTOFactory().make_gpt_image_1_request(
         schema, context=context, model=model
     )
+    logger.info(str(request))
     job_id = task_queue.enqueue(
         _run_task_text2image_openai,
         task_id,
@@ -101,6 +108,7 @@ async def enqueue_text2text_task(
     context_client: ITaskContextSource,
     uow: ITaskUnitOfWork,
 ):
+    logger.debug(f"Enqueue text2text task: {task_id} {schema}")
     context = None
     if schema.context_id:
         context = await context_client.get_task_context(
