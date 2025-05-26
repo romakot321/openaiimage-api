@@ -22,22 +22,18 @@ class UserUpdate(BaseModel):
 
 
 class AppHudWebhookEventName(str, Enum):
-    subscription_started = 'subscription_started'
+    subscription_started = 'paywall_checkout_initiated'
 
 
 class AppHudWebhook(BaseModel):
     class App(BaseModel):
         bundle_id: str
-        package_name: str
+        package_name: str | None = None
 
     class Event(BaseModel):
         class EventProperties(BaseModel):
-            currency: str
-            usd_price: float
             product_id: str
 
-        id: UUID
-        created_at: dt.datetime
         properties: EventProperties
         name: str
 

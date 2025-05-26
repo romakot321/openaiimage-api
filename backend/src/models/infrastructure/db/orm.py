@@ -81,7 +81,7 @@ class ModelUserInputDB(Base):
 class ModelCategoryDB(BaseMixin, Base):
     __tablename__ = "prompt_categories"
 
-    name: Mapped[str] = mapped_column(unique=True, primary_key=True)
+    name: Mapped[str] = mapped_column(unique=True)
     position: Mapped[int | None]
 
     models: Mapped[list["ModelDB"]] = relationship(back_populates="category", lazy="selectin")
