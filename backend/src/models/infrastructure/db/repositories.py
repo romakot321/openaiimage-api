@@ -18,6 +18,8 @@ class PGModelRepository(IModelRepository):
 
     async def get_list(self, params: ModelList) -> list[Model]:
         query = select(ModelDB).offset(params.page * params.count).limit(params.count)
+        if params.enabled is not None:
+            query = query.filter_by(enabled=params.enabled)
         query = query.options(selectinload(ModelDB.user_inputs))
         query = query.order_by(ModelDB.position)
         result = await self.session.scalars(query)
@@ -50,6 +52,8 @@ class PGModelCategoryRepository(IModelCategoryRepository):
 
     async def get_list(self, params: ModelList) -> list[ModelCategory]:
         query = select(ModelCategoryDB).offset(params.page * params.count).limit(params.count)
+        if params.enabled is not None:
+            query = query.filter_by(enabled=params.enabled)
         query = query.options(selectinload(ModelCategoryDB.models).subqueryload(ModelDB.user_inputs))
         query = query.order_by(ModelCategoryDB.position)
         result = await self.session.scalars(query)

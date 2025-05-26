@@ -1,7 +1,7 @@
 from uuid import UUID
 from fastapi_storages.integrations.sqlalchemy import ImageType as _ImageType
 from fastapi_storages import StorageFile
-from sqlalchemy import ForeignKey, func, select
+from sqlalchemy import ForeignKey, func, select, true
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db.base import Base, BaseMixin
@@ -42,8 +42,7 @@ class ModelDB(BaseMixin, Base):
     text: Mapped[str]
     title: Mapped[str]
     is_model: Mapped[bool]
-    for_image: Mapped[bool]
-    for_video: Mapped[bool]
+    enabled: Mapped[bool] = mapped_column(server_default=true())
     position: Mapped[int | None]
     image: Mapped[ImageType | None] = mapped_column(type_=ImageType(storage=storage), nullable=True)
     category_name: Mapped[str | None] = mapped_column(ForeignKey("prompt_categories.name", ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
@@ -83,6 +82,7 @@ class ModelCategoryDB(BaseMixin, Base):
 
     id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True)
+    enabled: Mapped[bool] = mapped_column(server_default=true())
     position: Mapped[int | None]
 
     models: Mapped[list["ModelDB"]] = relationship(back_populates="category", lazy="selectin")

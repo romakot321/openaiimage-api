@@ -31,3 +31,4 @@ class ModelCategory(BaseModel):
 class ModelList(BaseModel):
     page: int
     count: int
+    enabled: bool | None = None

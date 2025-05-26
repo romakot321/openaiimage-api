@@ -34,6 +34,7 @@ class ModelAdmin(ModelView, model=ModelDB):
         ModelDB.title,
         ModelDB.category_name,
         ModelDB.position,
+        ModelDB.enabled,
         ModelDB.tasks_count,
     ]
     column_searchable_list = [ModelDB.id, ModelDB.title]
@@ -46,6 +47,7 @@ class ModelAdmin(ModelView, model=ModelDB):
         ModelDB.category_name: "Категория",
         ModelDB.tasks_count: "Генераций",
         ModelDB.title: "Название",
+        ModelDB.enabled: "Активна",
         ModelDB.position: "Позиция",
     }
     column_formatters_detail = {
@@ -66,10 +68,11 @@ class ModelUserInputsAdmin(ModelView, model=ModelUserInputDB):
 class ModelCategoryAdmin(ModelView, model=ModelCategoryDB):
     name = "Models categorie"
 
-    column_list = [ModelCategoryDB.name, ModelCategoryDB.position]
+    column_list = [ModelCategoryDB.name, ModelCategoryDB.position, ModelCategoryDB.enabled]
     column_labels = {
         ModelCategoryDB.name: "Название",
         ModelCategoryDB.position: "Позиция",
+        ModelCategoryDB.enabled: "Активна",
     }
     column_searchable_list = [ModelCategoryDB.name, ModelCategoryDB.position]
     column_default_sort = [(ModelCategoryDB.position, False)]

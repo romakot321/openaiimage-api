@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 class ModelListParamsDTO(BaseModel):
     page: int = 0
     count: int = 0
+    enabled: bool | None = None
 
 
 class ModelUserInputDTO(BaseModel):
