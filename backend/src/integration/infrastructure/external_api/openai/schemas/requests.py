@@ -1,7 +1,7 @@
 from io import BytesIO
 from typing import Literal
 import base64
-from pydantic import BaseModel, ConfigDict, field_serializer, field_validator, SerializationInfo
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 
 class OpenAIGPTImage1Request(BaseModel):

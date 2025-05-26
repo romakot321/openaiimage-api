@@ -3,7 +3,6 @@ import logging
 from typing import Any, Coroutine
 from uuid import UUID
 import io
-import binascii
 
 
 from fastapi import HTTPException

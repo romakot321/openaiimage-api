@@ -1,19 +1,8 @@
-import asyncio
 from uuid import UUID
 import io
-import base64
 
-import redis
-import rq
 
 from rq.job import Dependency
-from src.contexts.presentation.dependencies import get_context_task_adapter
-from src.integration.infrastructure.external_api.openai.schemas.requests import (
-    OpenAIGPTInput,
-)
-from src.integration.infrastructure.external_api.openai.schemas.responses import (
-    OpenAIResponse,
-)
 from src.models.domain.interfaces.model_uow import IModelUnitOfWork
 from src.tasks.application.use_cases.task_run import (
     _run_task_image2image_openai,
@@ -24,7 +13,6 @@ from src.tasks.presentation.dependencies import get_task_uow, get_task_webhook_c
 from src.core.rq import task_queue
 from src.tasks.domain.dtos import TaskCreateImageDTO, TaskCreateTextDTO
 from src.tasks.domain.factories import (
-    OpenAIGPTInputFromOpenAIResponseFactory,
     OpenAIRequestFromDTOFactory,
 )
 from src.tasks.domain.interfaces.task_context_source import (

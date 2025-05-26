@@ -1,5 +1,4 @@
 from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncSession
 from src.tasks.domain.interfaces.task_statistics_unit_of_work import ITaskStatisticsUnitOfWork
 
 from src.redis.dependencies import get_redis_connection

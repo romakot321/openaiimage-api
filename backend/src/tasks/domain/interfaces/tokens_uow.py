@@ -1,5 +1,4 @@
 import abc
-from uuid import UUID
 
 from src.users.domain.interfaces.user_repository import IUserRepository
 

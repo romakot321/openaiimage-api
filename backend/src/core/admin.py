@@ -1,8 +1,5 @@
-from sqladmin import Admin
 from sqladmin.authentication import AuthenticationBackend
 from starlette.requests import Request
-from uuid import uuid4
-import os
 import jwt
 
 from src.core.config import settings

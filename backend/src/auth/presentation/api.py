@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends
-from src.auth.application.service import AuthService
+from fastapi import APIRouter
 from src.auth.domain.dtos import AuthLoginDTO, AuthTokenDTO
 from src.auth.presentation.dependencies import AuthServiceDepend, CurrentUserDepend
 from src.users.domain.dtos import UserReadDTO

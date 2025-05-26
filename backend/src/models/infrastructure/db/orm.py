@@ -1,7 +1,7 @@
 from uuid import UUID
 from fastapi_storages.integrations.sqlalchemy import ImageType as _ImageType
 from fastapi_storages import StorageFile
-from sqlalchemy import ForeignKey, Table, func, select, text
+from sqlalchemy import ForeignKey, func, select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db.base import Base, BaseMixin

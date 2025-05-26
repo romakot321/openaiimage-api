@@ -1,5 +1,5 @@
 from src.users.domain.dtos import UserCreateDTO, UserReadDTO
-from src.users.domain.entities import User, UserCreate
+from src.users.domain.entities import UserCreate
 from src.users.domain.interfaces.user_uow import IUserUnitOfWork
 
 

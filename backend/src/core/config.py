@@ -47,7 +47,7 @@ class Settings(BaseSettings):
         )
 
     @model_validator(mode="after")
-    def validate_environment(self)r:
+    def validate_environment(self):
         if self.ENVIRONMENT != "prod":
             return self
         if self.API_TOKEN == "123":

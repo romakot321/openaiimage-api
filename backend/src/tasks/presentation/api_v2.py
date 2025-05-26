@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import Response
 
 from src.auth.presentation.dependencies import CurrentUserDepend
-from src.core.auth import validate_api_token
 from src.models.presentation.dependencies import ModelUoWDepend
 from src.tasks.application.use_cases.task_statistics import get_remaining
 from src.tasks.application.use_cases.task_status import get_task

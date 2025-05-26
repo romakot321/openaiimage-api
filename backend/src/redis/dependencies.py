@@ -1,4 +1,3 @@
-from typing import AsyncIterator
 from redis.asyncio import Redis
 from .base import pool
 

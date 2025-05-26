@@ -1,10 +1,8 @@
-from io import BytesIO
 from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from src.users.infrastructure.db.orm import UserDB
 from src.users.domain.entities import User, UserCreate, UserUpdate

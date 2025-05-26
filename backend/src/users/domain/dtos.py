@@ -1,7 +1,4 @@
 from pydantic import AliasChoices, BaseModel, Field
-import datetime as dt
-from enum import Enum
-from uuid import UUID
 
 
 class UserReadDTO(BaseModel):

@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Callable, Coroutine
+from typing import Any, Coroutine
 from fastapi import HTTPException
 from pydantic import ValidationError
 from src.users.domain.entities import AppHudWebhook, AppHudWebhookEventName, UserUpdate
