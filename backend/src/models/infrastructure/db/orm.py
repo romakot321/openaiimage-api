@@ -46,7 +46,7 @@ class ModelDB(BaseMixin, Base):
     for_video: Mapped[bool]
     position: Mapped[int | None]
     image: Mapped[ImageType | None] = mapped_column(type_=ImageType(storage=storage), nullable=True)
-    category_name: Mapped[str | None] = mapped_column(ForeignKey("prompt_categories.name", ondelete="CASCADE"))
+    category_name: Mapped[str | None] = mapped_column(ForeignKey("prompt_categories.name", ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
 
     user_inputs: Mapped[list['ModelUserInputDB']] = relationship(back_populates="model", lazy="selectin", secondary="prompts_userinputs_association")
     category: Mapped['ModelCategoryDB'] = relationship(back_populates="models", lazy="selectin")
@@ -81,6 +81,7 @@ class ModelUserInputDB(Base):
 class ModelCategoryDB(BaseMixin, Base):
     __tablename__ = "prompt_categories"
 
+    id: Mapped[str] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True)
     position: Mapped[int | None]
 

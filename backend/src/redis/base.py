@@ -1,4 +1,4 @@
 import redis.asyncio as redis
 from src.core.config import settings
 
-pool = redis.ConnectionPool(host=settings.REDIS_HOST, db=1)
+pool = redis.ConnectionPool(host=settings.REDIS_HOST, db=1, decode_responses=True)

@@ -106,7 +106,7 @@ class OpenAIRequestFromDTOFactory:
             model_text = model.text
             for inp in (dto.user_inputs or []):
                 if inp.key in model_text:
-                    model_text.format(**{inp.key: inp.value})
+                    model_text = model_text.format(**{inp.key: inp.value})
             prompt += model_text + "\n"
         if dto.user_prompt:
             prompt += dto.user_prompt
