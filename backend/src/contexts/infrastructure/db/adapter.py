@@ -1,5 +1,5 @@
 from uuid import UUID
-import logging
+from loguru import logger
 
 from fastapi import HTTPException
 from src.contexts.domain.entities import (
@@ -18,8 +18,6 @@ from src.integration.infrastructure.external_api.openai.schemas.requests import 
     OpenAIGPTInput,
 )
 from src.tasks.domain.interfaces.task_context_source import ITaskContextSource
-
-logger = logging.getLogger(__name__)
 
 
 class ContextTaskAdapter(ITaskContextSource[OpenAIGPTInput]):

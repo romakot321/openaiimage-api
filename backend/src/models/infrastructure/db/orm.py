@@ -56,11 +56,13 @@ class ModelDB(BaseMixin, Base):
 
     @hybrid_property
     def tasks_count(self):
+        return 0
         return len(self.tasks)
 
     @tasks_count.expression
     @classmethod
     def tasks_count(cls):
+        return 0
         return select(func.count()).select_from(TaskDB).filter_by(model_id=cls.id)
 
 

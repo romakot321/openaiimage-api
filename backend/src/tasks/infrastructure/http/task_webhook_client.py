@@ -1,10 +1,8 @@
 from src.tasks.domain.dtos import TaskReadDTO
 from src.tasks.domain.entities import Task
 from src.tasks.domain.interfaces.http_client import IAsyncHttpClient
-import logging
+from loguru import logger
 from urllib.parse import urlparse
-
-logger = logging.getLogger(__name__)
 
 
 class TaskWebhookClient:

@@ -1,8 +1,9 @@
 import base64
-import logging
+from loguru import logger
 from typing import Any, Coroutine
 from uuid import UUID
 import io
+import src.core.logging_setup
 
 
 from fastapi import HTTPException
@@ -43,8 +44,6 @@ from src.tasks.domain.factories import (
     OpenAIGPTInputFromOpenAIResponseFactory,
 )
 from src.users.presentation.dependencies import get_tokens_uow
-
-logger = logging.getLogger(__name__)
 
 
 def _save_response(task_id: UUID, image_encoded: str) -> str:

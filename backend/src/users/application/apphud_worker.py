@@ -1,12 +1,10 @@
-import logging
+from loguru import logger
 from typing import Any, Coroutine
 from fastapi import HTTPException
 from pydantic import ValidationError
 from src.users.domain.entities import AppHudWebhook, AppHudWebhookEventName, UserUpdate
 from src.users.domain.interfaces.user_uow import IUserUnitOfWork
 from src.core.config import settings
-
-logger = logging.getLogger(__name__)
 
 
 class AppHudWorker:

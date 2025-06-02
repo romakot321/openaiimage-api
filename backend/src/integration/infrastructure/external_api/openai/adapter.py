@@ -1,12 +1,10 @@
 from openai import AsyncOpenAI
-import logging
+from loguru import logger
 
 from src.integration.infrastructure.external_api.openai.schemas.requests import OpenAIGPT4Request, OpenAIGPTImage1Request
 from src.integration.infrastructure.external_api.openai.schemas.responses import OpenAIResponse
 from src.tasks.domain.interfaces.task_source_client import ITaskSourceClient
 from src.integration.domain.exceptions import IntegrationGenerationError
-
-logger = logging.getLogger(__name__)
 
 
 class OpenAIAdapter(ITaskSourceClient[OpenAIGPTImage1Request, OpenAIGPT4Request, OpenAIResponse]):

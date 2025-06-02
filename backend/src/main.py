@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import logging
+from loguru import logger
 from sqladmin import Admin
 from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -24,8 +25,6 @@ from src.models.presentation.api import router as models_router
 
 from src.integration.infrastructure.external_api.openai.fake import FakeOpenAIAdapter
 from src.integration.presentation.dependencies import get_openai_adapter
-
-logger = logging.getLogger(__name__)
 
 
 def setup_test_env(app: FastAPI):

@@ -82,6 +82,7 @@ COPY ./backend/alembic /app/alembic
 COPY ./backend/alembic.ini /app
 COPY ./backend/src /app/src
 RUN mkdir -p /app/storage && chown $user_id:$group_id -R /app/storage
+RUN mkdir -p /app/logs && chown $user_id:$group_id -R /app/logs
 
 USER $user_id:$group_id
 WORKDIR /app

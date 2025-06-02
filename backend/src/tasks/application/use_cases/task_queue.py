@@ -1,4 +1,4 @@
-import logging
+from loguru import logger
 from uuid import UUID
 import io
 
@@ -23,8 +23,6 @@ from src.tasks.domain.interfaces.task_source_client import (
     ITaskSourceClient,
 )
 from src.tasks.domain.interfaces.task_uow import ITaskUnitOfWork
-
-logger = logging.getLogger(__name__)
 
 
 async def send_task_webhook(task_id: UUID, webhook_url: str):

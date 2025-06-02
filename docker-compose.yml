@@ -15,6 +15,7 @@ services:
     volumes:
       - app_localstorage:/app/storage
       - ./logs/fastapi:/app/logs
+      - app_logs:/app/logs
 
   db:
     image: postgres:latest
@@ -55,6 +56,8 @@ services:
       default:
     volumes:
       - app_localstorage:/app/storage
+      - ./logs/fastapi:/app/logs
+      - app_logs:/app/logs
 
   prometheus:
     image: prom/prometheus:v3.2.1
@@ -102,6 +105,7 @@ networks:
     external: true
 
 volumes:
+  app_logs:
   postgres_data:
   prometheus_data:
   app_localstorage:
